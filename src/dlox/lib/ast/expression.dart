@@ -12,22 +12,20 @@ class BinaryExpression extends Expression {
   );
 
   final Expression left;
+
   final Token operator;
+
   final Expression right;
 }
 
 class GroupingExpression extends Expression {
-  const GroupingExpression(
-    this.expression,
-  );
+  const GroupingExpression(this.expression);
 
   final Expression expression;
 }
 
 class LiteralExpression extends Expression {
-  const LiteralExpression(
-    this.value,
-  );
+  const LiteralExpression(this.value);
 
   final Object value;
 }
@@ -39,6 +37,12 @@ class UnaryExpression extends Expression {
   );
 
   final Token operator;
+
   final Expression right;
 }
-
+abstract interface class Visitor<T> {
+  T visitBinaryExpression(BinaryExpression expression);
+  T visitGroupingExpression(GroupingExpression expression);
+  T visitLiteralExpression(LiteralExpression expression);
+  T visitUnaryExpression(UnaryExpression expression);
+}

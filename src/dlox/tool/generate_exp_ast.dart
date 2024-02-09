@@ -1,6 +1,9 @@
 import 'dart:io';
 
+import 'package:code_builder/code_builder.dart';
+import 'package:dart_style/dart_style.dart';
 import 'package:path/path.dart';
+import 'package:recase/recase.dart';
 
 Future<void> main(List<String> args) async {
   // if (args.length != 1) {
@@ -8,10 +11,12 @@ Future<void> main(List<String> args) async {
   //   exit(64);
   // }
   // final outputDir = args.first;
-  final outputDir =
-      normalize(join(Directory.current.path, 'lib/ast/expression.dart'));
+  final outputDir = normalize(
+    join(Directory.current.path, 'lib/ast/expression.dart'),
+  );
 
   final buffer = StringBuffer();
+
   defineAst(buffer, 'Expression', {
     'BinaryExpression': [
       (type: 'Expression', name: 'left'),
@@ -41,40 +46,98 @@ Future<void> main(List<String> args) async {
 void defineAst(
   StringBuffer writer,
   String baseName,
-  Map<String, List<({String type, String name})>> types,
+  Map<String, List<ExpDetail>> types,
 ) {
-  writer.write('''
-import '../token.dart';
+  writer.writeCode(Library((builder) {
+    builder.directives.add(Directive.import('../token.dart'));
+    builder.body.addAll([
+      Class((builder) {
+        builder.sealed = true;
+        builder.name = baseName;
 
-sealed class $baseName {
-  const $baseName();
+        // -- single, unnamed constructor --
+        builder.constructors.add(Constructor((builder) {
+          builder.constant = true;
+        }));
+      }),
+
+      // -- all implementations --
+      for (final MapEntry(key: typeName, value: fields) in types.entries)
+        Class((builder) {
+          builder.name = typeName;
+          builder.extend = refer(baseName);
+
+          // -- single, unnamed constructor --
+          builder.constructors.addAll([
+            Constructor((builder) {
+              builder.constant = true;
+              builder.requiredParameters.addAll(fields.map((e) {
+                return Parameter((builder) {
+                  builder.toThis = true;
+                  builder.name = e.name;
+                });
+              }));
+            }),
+          ]);
+
+          // -- fields --
+          builder.fields.addAll(fields.map((e) {
+            return Field((builder) {
+              builder.name = e.name;
+              builder.type = refer(e.type);
+              builder.modifier = FieldModifier.final$;
+            });
+          }));
+        }),
+    ]);
+  }));
+
+  defineVisitor(writer, baseName, types);
 }
 
-''');
-  for (final typeEntry in types.entries) {
-    final className = typeEntry.key;
-    final parameters = typeEntry.value;
-    writer.write('''
-class $className extends $baseName {
-  const $className(
-${parameters.map((e) => '    this.${e.name},').join('\n')}
-  );
+void defineVisitorMethod(
+  StringBuffer writer,
+  String baseName,
+) {}
 
-${parameters.map((e) => '  final ${e.type} ${e.name};').join('\n')}
+void defineVisitor(
+  StringBuffer writer,
+  String baseName,
+  Map<String, List<ExpDetail>> types,
+) {
+  final clazz = Class((builder) {
+    builder.abstract = true;
+    builder.modifier = ClassModifier.interface;
+    builder.name = 'Visitor';
+    builder.types.add(refer('T'));
+
+    // -- visit methods --
+    builder.methods.addAll([
+      for (final MapEntry(key: typeName) in types.entries)
+        Method((builder) {
+          builder.name = 'visit$typeName';
+          builder.returns = refer('T');
+          builder.requiredParameters.add(
+            Parameter((builder) {
+              builder.type = refer(typeName);
+              builder.name = baseName.camelCase;
+            }),
+          );
+        }),
+    ]);
+  });
+
+  writer.writeCode(clazz);
 }
 
-''');
+typedef ExpDetail = ({String type, String name});
+
+extension BufferCodeWriter on StringBuffer {
+  void writeCode(Spec spec) {
+    final emitter = DartEmitter(useNullSafetySyntax: true);
+    final formatter = DartFormatter();
+
+    final validatedCode = spec.accept(emitter);
+    write(formatter.format(validatedCode.toString()));
   }
-}
-
-void defineVisitor(StringBuffer writer, String baseName,
-    Map<String, List<({String type, String name})>> types) {
-  writer.writeln('interface Visitor<T> {');
-
-  for (final type in types.entries) {
-    final name = type.key;
-    writer.write('  T visit$name($name)');
-  }
-
-  writer.writeln('}');
 }

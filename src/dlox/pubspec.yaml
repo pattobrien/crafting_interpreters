@@ -10,6 +10,9 @@ dependencies:
   path: ^1.8.0
   analyzer_utils:
     path: /Users/pattobrien/dev/pattobrien/analyzer-utils
+  code_builder: ^4.10.0
+  recase: ^4.1.0
+  dart_style: ^2.3.4
 
 dev_dependencies:
   lints: ^2.0.0

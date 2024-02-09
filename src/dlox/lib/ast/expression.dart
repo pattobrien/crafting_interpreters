@@ -39,7 +39,7 @@ class GroupingExpression extends Expression {
 class LiteralExpression extends Expression {
   const LiteralExpression(this.value);
 
-  final Object value;
+  final Object? value;
 
   @override
   T accept<T>(Visitor<T> visitor) {
@@ -62,7 +62,6 @@ class UnaryExpression extends Expression {
     return visitor.visitUnaryExpression(this);
   }
 }
-
 abstract interface class Visitor<T> {
   T visitBinaryExpression(BinaryExpression expression);
   T visitGroupingExpression(GroupingExpression expression);

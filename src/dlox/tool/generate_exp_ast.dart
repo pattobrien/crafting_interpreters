@@ -27,7 +27,7 @@ Future<void> main(List<String> args) async {
       (type: 'Expression', name: 'expression'),
     ],
     'LiteralExpression': [
-      (type: 'Object', name: 'value'),
+      (type: 'Object?', name: 'value'),
     ],
     'UnaryExpression': [
       (type: 'Token', name: 'operator'),

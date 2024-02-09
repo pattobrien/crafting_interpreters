@@ -1,32 +1,18 @@
 import 'dart:io';
 
-import 'package:dlox/ast/visitor_ex.dart';
+import 'package:dlox/ast/ast_printer.dart';
 import 'package:dlox/token.dart';
 import 'package:dlox/token_type.dart';
 
+import 'ast/interpreter.dart';
 import 'parser.dart';
 import 'scanner.dart';
 
-void main(List<String> args) {
-  final dlox = DLox();
-  if (args.length > 1) {
-    print('Usage: dlox [script]');
-    exit(64);
-  }
-  // a `path` was passed in the args
-  else if (args.length == 1) {
-    print('Running file: ${args[0]}');
-    dlox.runFile(args[0]);
-  }
-  // run the REPL
-  else {
-    print('Running REPL');
-    dlox.runPrompt();
-  }
-}
-
 class DLox {
-  bool hadError = false;
+  static bool hadError = false;
+  static bool hadRuntimeError = false;
+
+  static final interpreter = Interpreter();
 
   void main(List<String> args) {
     if (args.length > 1) {
@@ -55,6 +41,11 @@ class DLox {
     }
   }
 
+  static void runtimeError(DloxRuntimeError error) {
+    _report(error.token.line, "", error.message);
+    hadRuntimeError = true;
+  }
+
   static void _report(
     int line,
     String where,
@@ -69,6 +60,7 @@ class DLox {
 
     // Indicate an error in the exit code.
     if (hadError) exit(65);
+    if (hadRuntimeError) exit(70);
   }
 
   void runPrompt() {
@@ -90,9 +82,10 @@ class DLox {
     final parser = Parser(tokens);
     final expression = parser.parse();
 
-    if (hadError) return;
+    // if (hadError) return;
+    interpreter.interpret(expression!);
 
-    print(const AstPrinter().printNode(expression!));
+    print(const AstPrinter().printNode(expression));
 
     // // print tokens, for now
     // for (final token in tokens) {

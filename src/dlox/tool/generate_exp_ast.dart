@@ -51,6 +51,7 @@ void defineAst(
   writer.writeCode(Library((builder) {
     builder.directives.add(Directive.import('../token.dart'));
     builder.body.addAll([
+      // -- BASE CLASS --
       Class((builder) {
         builder.sealed = true;
         builder.name = baseName;
@@ -59,9 +60,26 @@ void defineAst(
         builder.constructors.add(Constructor((builder) {
           builder.constant = true;
         }));
+
+        builder.methods.add(
+          Method((builder) {
+            builder.name = 'accept';
+            builder.returns = refer('T');
+            builder.types.add(refer('T'));
+            builder.requiredParameters.add(
+              Parameter((builder) {
+                builder.name = 'visitor';
+                builder.type = TypeReference((builder) {
+                  builder.symbol = 'Visitor';
+                  builder.types.add(refer('T'));
+                });
+              }),
+            );
+          }),
+        );
       }),
 
-      // -- all implementations --
+      // -- TYPES IMPLEMENTATIONS --
       for (final MapEntry(key: typeName, value: fields) in types.entries)
         Class((builder) {
           builder.name = typeName;
@@ -88,6 +106,32 @@ void defineAst(
               builder.modifier = FieldModifier.final$;
             });
           }));
+
+          // -- visit method implementation --
+          builder.methods.add(
+            Method((builder) {
+              builder.annotations.add(refer('override'));
+              builder.name = 'accept';
+              builder.types.add(refer('T'));
+              builder.returns = refer('T');
+              builder.requiredParameters.add(
+                Parameter((builder) {
+                  builder.name = 'visitor';
+                  builder.type = refer('Visitor<T>');
+                }),
+              );
+
+              // -- method body --
+              builder.body = Block((builder) {
+                final visitMethodName = 'visit$typeName';
+                builder.addExpression(
+                  refer('visitor').property(visitMethodName).call(
+                    [refer('this')],
+                  ).returned,
+                );
+              });
+            }),
+          );
         }),
     ]);
   }));

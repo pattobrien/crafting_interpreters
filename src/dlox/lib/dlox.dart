@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:dlox/ast/ast_printer.dart';
 import 'package:dlox/token.dart';
 import 'package:dlox/token_type.dart';
 
+import 'ast/expression.dart';
 import 'ast/interpreter.dart';
 import 'parser.dart';
 import 'scanner.dart';
@@ -80,12 +80,12 @@ class DLox {
     final scanner = Scanner(source);
     final tokens = scanner.scanTokens();
     final parser = Parser(tokens);
-    final expression = parser.parse();
+    List<Statement>? expression = parser.parse();
 
     // if (hadError) return;
     interpreter.interpret(expression!);
 
-    print(const AstPrinter().printNode(expression));
+    // print(const AstPrinter().printNode(expression));
 
     // // print tokens, for now
     // for (final token in tokens) {

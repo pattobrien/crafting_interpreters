@@ -4,16 +4,24 @@ import 'package:dlox/token.dart';
 
 import '../token_type.dart';
 
-class Interpreter implements Visitor<Object?> {
+class Interpreter
+    implements ExpressionVisitor<Object?>, StatementVisitor<void> {
   const Interpreter();
 
-  void interpret(Expression expression) {
+  void interpret(List<Statement> statements) {
     try {
-      Object? value = evaluate(expression);
-      print(value);
+      // Object? value = evaluate(expression);
+      // print(value);
+      for (final statement in statements) {
+        execute(statement);
+      }
     } on DloxRuntimeError catch (error) {
       DLox.runtimeError(error);
     }
+  }
+
+  void execute(Statement statement) {
+    statement.accept(this);
   }
 
   Object? evaluate(Expression expression) {
@@ -113,6 +121,17 @@ class Interpreter implements Visitor<Object?> {
         // TODO: handle error
         return null;
     }
+  }
+
+  @override
+  void visitExpressionStatement(ExpressionStatement node) {
+    evaluate(node.expression);
+  }
+
+  @override
+  void visitPrintStatement(PrintStatement node) {
+    Object? value = evaluate(node.expression);
+    print(value);
   }
 }
 

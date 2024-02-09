@@ -9,12 +9,33 @@ class Parser {
   List<Token> tokens;
   int current = 0;
 
-  Expression? parse() {
+  List<Statement>? parse() {
     try {
-      return parseExpression();
+      List<Statement> statements = [];
+      while (!isAtEnd()) {
+        statements.add(parseStatement());
+      }
+      return statements;
     } on ParserError {
       return null;
     }
+  }
+
+  Statement parseStatement() {
+    if (match([TokenType.PRINT])) return parsePrintStatement();
+    return parseExpressionStatement();
+  }
+
+  PrintStatement parsePrintStatement() {
+    Expression value = parseExpression();
+    consume(TokenType.SEMICOLON, "Expect ';' after value.");
+    return PrintStatement(value);
+  }
+
+  ExpressionStatement parseExpressionStatement() {
+    Expression value = parseExpression();
+    consume(TokenType.SEMICOLON, "Expect ';' after value.");
+    return ExpressionStatement(value);
   }
 
   Expression parseExpression() {

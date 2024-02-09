@@ -8,3 +8,5 @@ A lox interpreter written in Dart.
 - 6.1
 - 6.3.1
 - chapter 7: https://craftinginterpreters.com/evaluating-expressions.html
+- 8.1
+- 8.2

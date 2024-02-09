@@ -1,9 +1,8 @@
 import '../token.dart';
-
 sealed class Expression {
   const Expression();
 
-  T accept<T>(Visitor<T> visitor);
+  T accept<T>(ExpressionVisitor<T> visitor);
 }
 
 class BinaryExpression extends Expression {
@@ -20,7 +19,7 @@ class BinaryExpression extends Expression {
   final Expression right;
 
   @override
-  T accept<T>(Visitor<T> visitor) {
+  T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitBinaryExpression(this);
   }
 }
@@ -31,7 +30,7 @@ class GroupingExpression extends Expression {
   final Expression expression;
 
   @override
-  T accept<T>(Visitor<T> visitor) {
+  T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitGroupingExpression(this);
   }
 }
@@ -42,7 +41,7 @@ class LiteralExpression extends Expression {
   final Object? value;
 
   @override
-  T accept<T>(Visitor<T> visitor) {
+  T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitLiteralExpression(this);
   }
 }
@@ -58,13 +57,44 @@ class UnaryExpression extends Expression {
   final Expression right;
 
   @override
-  T accept<T>(Visitor<T> visitor) {
+  T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitUnaryExpression(this);
   }
 }
-abstract interface class Visitor<T> {
-  T visitBinaryExpression(BinaryExpression expression);
-  T visitGroupingExpression(GroupingExpression expression);
-  T visitLiteralExpression(LiteralExpression expression);
-  T visitUnaryExpression(UnaryExpression expression);
+sealed class Statement {
+  const Statement();
+
+  T accept<T>(StatementVisitor<T> visitor);
+}
+
+class ExpressionStatement extends Statement {
+  const ExpressionStatement(this.expression);
+
+  final Expression expression;
+
+  @override
+  T accept<T>(StatementVisitor<T> visitor) {
+    return visitor.visitExpressionStatement(this);
+  }
+}
+
+class PrintStatement extends Statement {
+  const PrintStatement(this.expression);
+
+  final Expression expression;
+
+  @override
+  T accept<T>(StatementVisitor<T> visitor) {
+    return visitor.visitPrintStatement(this);
+  }
+}
+abstract interface class ExpressionVisitor<T> {
+  T visitBinaryExpression(BinaryExpression expressionVisitor);
+  T visitGroupingExpression(GroupingExpression expressionVisitor);
+  T visitLiteralExpression(LiteralExpression expressionVisitor);
+  T visitUnaryExpression(UnaryExpression expressionVisitor);
+}
+abstract interface class StatementVisitor<T> {
+  T visitExpressionStatement(ExpressionStatement statementVisitor);
+  T visitPrintStatement(PrintStatement statementVisitor);
 }

@@ -17,7 +17,8 @@ Future<void> main(List<String> args) async {
 
   final buffer = StringBuffer();
 
-  defineAst(buffer, 'Expression', {
+  buffer.writeCode(Directive.import('../token.dart'));
+  final expressionTypes = {
     'BinaryExpression': [
       (type: 'Expression', name: 'left'),
       (type: 'Token', name: 'operator'),
@@ -33,7 +34,23 @@ Future<void> main(List<String> args) async {
       (type: 'Token', name: 'operator'),
       (type: 'Expression', name: 'right'),
     ],
-  });
+  };
+
+  defineAst(buffer, 'Expression', expressionTypes);
+
+  final statementTypes = {
+    'ExpressionStatement': [
+      (type: 'Expression', name: 'expression'),
+    ],
+    'PrintStatement': [
+      (type: 'Expression', name: 'expression'),
+    ]
+  };
+
+  defineAst(buffer, 'Statement', statementTypes);
+
+  defineVisitor(buffer, 'ExpressionVisitor', expressionTypes);
+  defineVisitor(buffer, 'StatementVisitor', statementTypes);
 
   // write to file
   File(outputDir).writeAsStringSync(buffer.toString());
@@ -49,7 +66,6 @@ void defineAst(
   Map<String, List<ExpDetail>> types,
 ) {
   writer.writeCode(Library((builder) {
-    builder.directives.add(Directive.import('../token.dart'));
     builder.body.addAll([
       // -- BASE CLASS --
       Class((builder) {
@@ -70,7 +86,7 @@ void defineAst(
               Parameter((builder) {
                 builder.name = 'visitor';
                 builder.type = TypeReference((builder) {
-                  builder.symbol = 'Visitor';
+                  builder.symbol = '${baseName}Visitor';
                   builder.types.add(refer('T'));
                 });
               }),
@@ -117,7 +133,7 @@ void defineAst(
               builder.requiredParameters.add(
                 Parameter((builder) {
                   builder.name = 'visitor';
-                  builder.type = refer('Visitor<T>');
+                  builder.type = refer('${baseName}Visitor<T>');
                 }),
               );
 
@@ -135,8 +151,6 @@ void defineAst(
         }),
     ]);
   }));
-
-  defineVisitor(writer, baseName, types);
 }
 
 void defineVisitorMethod(
@@ -152,7 +166,7 @@ void defineVisitor(
   final clazz = Class((builder) {
     builder.abstract = true;
     builder.modifier = ClassModifier.interface;
-    builder.name = 'Visitor';
+    builder.name = baseName;
     builder.types.add(refer('T'));
 
     // -- visit methods --

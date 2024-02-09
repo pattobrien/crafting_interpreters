@@ -4,7 +4,7 @@ import 'package:dlox/ast/expression.dart';
 ///
 /// Useful for ensuring a syntax tree has the expected structure.
 /// Example output is: `(* (- 123) (group 45.67))`
-class AstPrinter implements Visitor<String> {
+class AstPrinter implements ExpressionVisitor<String> {
   const AstPrinter();
   String printNode(Expression exp) {
     return exp.accept(this);

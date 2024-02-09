@@ -2,6 +2,9 @@
 
 A lox interpreter written in Dart.
 
-Last left off at: 5.2.2. https://craftinginterpreters.com/representing-code.html#metaprogramming-the-trees
+## Bookmarks
 
-- now 5.3.2
+- 5.3.2
+- 6.1
+- 6.3.1
+- chapter 7: https://craftinginterpreters.com/evaluating-expressions.html

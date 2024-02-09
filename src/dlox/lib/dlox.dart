@@ -1,12 +1,11 @@
 import 'dart:io';
 
-import 'package:dlox/token.dart';
-import 'package:dlox/token_type.dart';
-
 import 'ast/expression.dart';
 import 'ast/interpreter.dart';
 import 'parser.dart';
 import 'scanner.dart';
+import 'token.dart';
+import 'token_type.dart';
 
 class DLox {
   static bool hadError = false;
@@ -30,19 +29,19 @@ class DLox {
   }
 
   static void reportError(int line, String message) {
-    _report(line, "", message);
+    _report(line, '', message);
   }
 
   static void error(Token token, String message) {
     if (token.type == TokenType.EOF) {
-      _report(token.line, " at end", message);
+      _report(token.line, ' at end', message);
     } else {
       _report(token.line, " at '${token.lexeme}'", message);
     }
   }
 
   static void runtimeError(DloxRuntimeError error) {
-    _report(error.token.line, "", error.message);
+    _report(error.token.line, '', error.message);
     hadRuntimeError = true;
   }
 

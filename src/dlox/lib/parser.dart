@@ -1,7 +1,7 @@
-import 'package:dlox/ast/expression.dart';
-import 'package:dlox/dlox.dart';
-import 'package:dlox/token.dart';
-import 'package:dlox/token_type.dart';
+import 'ast/expression.dart';
+import 'dlox.dart';
+import 'token.dart';
+import 'token_type.dart';
 
 class Parser {
   Parser(this.tokens);
@@ -134,7 +134,7 @@ class Parser {
       return GroupingExpression(exp);
     }
 
-    throw error(peek(), "Expect expression.");
+    throw error(peek(), 'Expect expression.');
   }
 
   /// After an error is thrown, this method should be called in order to discard

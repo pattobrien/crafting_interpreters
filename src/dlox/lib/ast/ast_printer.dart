@@ -1,4 +1,4 @@
-import 'package:dlox/ast/expression.dart';
+import 'expression.dart';
 
 /// Pretty prints recursive expressions into a simple output.
 ///

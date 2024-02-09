@@ -1,8 +1,7 @@
-import 'package:dlox/ast/expression.dart';
-import 'package:dlox/dlox.dart';
-import 'package:dlox/token.dart';
-
+import '../dlox.dart';
+import '../token.dart';
 import '../token_type.dart';
+import 'expression.dart';
 
 class Interpreter
     implements ExpressionVisitor<Object?>, StatementVisitor<void> {
@@ -36,12 +35,12 @@ class Interpreter
 
   void checkNumberOperands(Token operator, Object? left, Object? right) {
     if (left is num && right is num) return;
-    throw DloxRuntimeError(operator, "Operands must be numbers.");
+    throw DloxRuntimeError(operator, 'Operands must be numbers.');
   }
 
   void checkNumberOperand(Token operator, Object? operand) {
     if (operand is num) return;
-    throw DloxRuntimeError(operator, "Operand must be a number.");
+    throw DloxRuntimeError(operator, 'Operand must be a number.');
   }
 
   /// Compares two objects for equality that may or may not have the same type.

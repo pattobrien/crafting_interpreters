@@ -16,7 +16,7 @@ Future<void> main(List<String> args) async {
 
   final buffer = StringBuffer();
 
-  buffer.writeCode(Directive.import('../token.dart'));
+  buffer.writeCode(Directive.import('../models/token.dart'));
 
   final expressionTypes = <String, List<ExpDetail>>{
     'BinaryExpression': [
@@ -72,7 +72,7 @@ Future<void> main(List<String> args) async {
     'WhileStatement': [
       (type: 'Expression', name: 'condition'),
       (type: 'Statement', name: 'body'),
-    ]
+    ],
   };
 
   defineAst(buffer, 'Statement', statementTypes);

@@ -41,10 +41,60 @@ class Parser {
   }
 
   Statement parseStatement() {
+    if (match([TokenType.FOR])) return parseForStatement();
     if (match([TokenType.IF])) return parseIfStatement();
     if (match([TokenType.PRINT])) return parsePrintStatement();
     if (match([TokenType.LEFT_BRACE])) return BlockStatement(parseBlock());
     return parseExpressionStatement();
+  }
+
+  Statement parseForStatement() {
+    consume(TokenType.LEFT_PARENTHESIS, 'Expect "(" after "for".');
+
+    // -- initializer clause --
+    Statement? initializer;
+    if (match([TokenType.SEMICOLON])) {
+      initializer = null;
+    } else if (match([TokenType.VAR])) {
+      initializer = parseVarDeclaration();
+    } else {
+      initializer = parseExpressionStatement();
+    }
+
+    // -- condition clause --
+    Expression? condition;
+    if (!check(TokenType.SEMICOLON)) {
+      condition = parseExpression();
+    }
+    consume(TokenType.SEMICOLON, 'Expected ";" after loop condition.');
+
+    // -- increment clause --
+    Expression? increment;
+    if (!check(TokenType.RIGHT_PARENTHESIS)) {
+      increment = parseExpression();
+    }
+    consume(TokenType.RIGHT_PARENTHESIS, 'Expected ")" after for clauses.');
+
+    Statement body = parseStatement();
+
+    // below is where we "desugar" by turning the for loop syntax into
+    // a while loop, with statements that manually set the variable and
+    // increment it
+    if (increment != null) {
+      body = BlockStatement([
+        body,
+        ExpressionStatement(increment),
+      ]);
+    }
+
+    condition ??= LiteralExpression(true);
+    body = WhileStatement(condition, body);
+
+    if (initializer != null) {
+      body = BlockStatement([initializer, body]);
+    }
+
+    return body;
   }
 
   WhileStatement parseWhile() {

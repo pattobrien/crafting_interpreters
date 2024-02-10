@@ -1,5 +1,4 @@
 import '../models/token.dart';
-
 sealed class Expression {
   const Expression();
 
@@ -108,7 +107,6 @@ class AssignmentExpression extends Expression {
     return visitor.visitAssignmentExpression(this);
   }
 }
-
 sealed class Statement {
   const Statement();
 
@@ -198,7 +196,6 @@ class WhileStatement extends Statement {
     return visitor.visitWhileStatement(this);
   }
 }
-
 abstract interface class ExpressionVisitor<T> {
   T visitBinaryExpression(BinaryExpression node);
   T visitGroupingExpression(GroupingExpression node);
@@ -208,7 +205,6 @@ abstract interface class ExpressionVisitor<T> {
   T visitVariableExpression(VariableExpression node);
   T visitAssignmentExpression(AssignmentExpression node);
 }
-
 abstract interface class StatementVisitor<T> {
   T visitExpressionStatement(ExpressionStatement node);
   T visitPrintStatement(PrintStatement node);

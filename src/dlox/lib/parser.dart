@@ -1,7 +1,7 @@
-import 'ast/expression.dart';
+import 'ast/ast_nodes.dart';
 import 'dlox.dart';
-import 'token.dart';
-import 'token_type.dart';
+import 'models/token.dart';
+import 'models/token_type.dart';
 
 /// Takes a flat list of [tokens] and outputs AstNodes.
 class Parser {

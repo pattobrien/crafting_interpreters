@@ -11,7 +11,7 @@ Future<void> main(List<String> args) async {
   // }
   // final outputDir = args.first;
   final outputDir = normalize(
-    join(Directory.current.path, 'lib/ast/expression.dart'),
+    join(Directory.current.path, 'lib/ast/ast_nodes.dart'),
   );
 
   final buffer = StringBuffer();

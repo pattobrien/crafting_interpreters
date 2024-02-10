@@ -1,6 +1,6 @@
 import 'dlox.dart';
-import 'token.dart';
-import 'token_type.dart';
+import 'models/token.dart';
+import 'models/token_type.dart';
 
 class Scanner {
   final String source;

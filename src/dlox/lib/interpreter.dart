@@ -1,8 +1,8 @@
-import '../dlox.dart';
-import '../environment.dart';
-import '../token.dart';
-import '../token_type.dart';
-import 'expression.dart';
+import 'ast/ast_nodes.dart';
+import 'dlox.dart';
+import 'environment.dart';
+import 'models/token.dart';
+import 'models/token_type.dart';
 
 class Interpreter
     implements ExpressionVisitor<Object?>, StatementVisitor<void> {

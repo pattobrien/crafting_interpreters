@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'ast/interpreter.dart';
+import 'interpreter.dart';
+import 'models/token.dart';
+import 'models/token_type.dart';
 import 'parser.dart';
 import 'scanner.dart';
-import 'token.dart';
-import 'token_type.dart';
 
 class DLox {
   static bool hadError = false;

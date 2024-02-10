@@ -1,5 +1,5 @@
-import 'ast/interpreter.dart';
-import 'token.dart';
+import 'interpreter.dart';
+import 'models/token.dart';
 
 /// Used for scoping variables to a particular block.
 ///

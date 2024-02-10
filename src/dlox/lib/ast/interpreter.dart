@@ -150,6 +150,15 @@ class Interpreter
   Object? visitVariableExpression(VariableExpression node) {
     return environment.get(node.name);
   }
+
+  @override
+  Object? visitAssignmentExpression(
+    AssignmentExpression node,
+  ) {
+    Object? value = evaluate(node.value);
+    environment.assign(node.name, node.value);
+    return value;
+  }
 }
 
 class DloxRuntimeError implements Exception {

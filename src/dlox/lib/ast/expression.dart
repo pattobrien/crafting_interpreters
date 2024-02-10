@@ -72,6 +72,22 @@ class VariableExpression extends Expression {
     return visitor.visitVariableExpression(this);
   }
 }
+
+class AssignmentExpression extends Expression {
+  const AssignmentExpression(
+    this.name,
+    this.value,
+  );
+
+  final Token name;
+
+  final Expression value;
+
+  @override
+  T accept<T>(ExpressionVisitor<T> visitor) {
+    return visitor.visitAssignmentExpression(this);
+  }
+}
 sealed class Statement {
   const Statement();
 
@@ -121,6 +137,7 @@ abstract interface class ExpressionVisitor<T> {
   T visitLiteralExpression(LiteralExpression expressionVisitor);
   T visitUnaryExpression(UnaryExpression expressionVisitor);
   T visitVariableExpression(VariableExpression expressionVisitor);
+  T visitAssignmentExpression(AssignmentExpression expressionVisitor);
 }
 abstract interface class StatementVisitor<T> {
   T visitExpressionStatement(ExpressionStatement statementVisitor);

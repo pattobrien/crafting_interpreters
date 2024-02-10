@@ -58,7 +58,26 @@ class Parser {
   }
 
   Expression parseExpression() {
-    return parseEquality();
+    return parseAssignmentExpression();
+  }
+
+  // note: this function is right-associative, so we recursively call
+  // [parseAssignmentExpression] to parse the right hand side.
+  Expression parseAssignmentExpression() {
+    Expression exp = parseEquality();
+    if (match([TokenType.EQUAL])) {
+      Token equals = getPreviousToken();
+      Expression value = parseAssignmentExpression();
+
+      if (exp is VariableExpression) {
+        Token name = exp.name;
+        return AssignmentExpression(name, value);
+      }
+
+      error(equals, 'Invalid assignment target.');
+    }
+
+    return exp;
   }
 
   Expression parseEquality() {

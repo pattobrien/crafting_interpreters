@@ -38,6 +38,10 @@ Future<void> main(List<String> args) async {
     'VariableExpression': [
       (type: 'Token', name: 'name'),
     ],
+    'AssignmentExpression': [
+      (type: 'Token', name: 'name'),
+      (type: 'Expression', name: 'value'),
+    ],
   };
 
   defineAst(buffer, 'Expression', expressionTypes);

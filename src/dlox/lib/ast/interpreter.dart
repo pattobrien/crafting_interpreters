@@ -1,11 +1,14 @@
 import '../dlox.dart';
+import '../environment.dart';
 import '../token.dart';
 import '../token_type.dart';
 import 'expression.dart';
 
 class Interpreter
     implements ExpressionVisitor<Object?>, StatementVisitor<void> {
-  const Interpreter();
+  Interpreter();
+
+  Environment environment = Environment();
 
   void interpret(List<Statement> statements) {
     try {
@@ -134,14 +137,18 @@ class Interpreter
   }
 
   @override
-  void visitVariableStatement(VariableStatement statementVisitor) {
-    // TODO: implement visitVariableStatement
+  void visitVariableStatement(VariableStatement node) {
+    Object? value;
+
+    if (node.initializer != null) {
+      value = evaluate(node.initializer!);
+    }
+    environment.define(node.name.lexeme, value);
   }
 
   @override
-  Object? visitVariableExpression(VariableExpression expressionVisitor) {
-    // TODO: implement visitVariableExpression
-    throw UnimplementedError();
+  Object? visitVariableExpression(VariableExpression node) {
+    return environment.get(node.name);
   }
 }
 

@@ -8,7 +8,7 @@ class Interpreter
     implements ExpressionVisitor<Object?>, StatementVisitor<void> {
   Interpreter();
 
-  Environment environment = Environment();
+  Environment environment = Environment.global();
 
   void interpret(List<Statement> statements) {
     try {
@@ -158,6 +158,30 @@ class Interpreter
     Object? value = evaluate(node.value);
     environment.assign(node.name, node.value);
     return value;
+  }
+
+  @override
+  void visitBlockStatement(BlockStatement statementVisitor) {
+    executeBlock(
+      statementVisitor.statements,
+      Environment.fromParent(environment),
+    );
+  }
+
+  void executeBlock(
+    List<Statement> statements,
+    Environment environment,
+  ) {
+    final previous = this.environment;
+    try {
+      this.environment = environment;
+
+      for (final statement in statements) {
+        execute(statement);
+      }
+    } finally {
+      this.environment = previous;
+    }
   }
 }
 

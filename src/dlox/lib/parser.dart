@@ -42,7 +42,20 @@ class Parser {
 
   Statement parseStatement() {
     if (match([TokenType.PRINT])) return parsePrintStatement();
+    if (match([TokenType.LEFT_BRACE])) return BlockStatement(parseBlock());
     return parseExpressionStatement();
+  }
+
+  List<Statement> parseBlock() {
+    List<Statement> statements = [];
+    while (!check(TokenType.RIGHT_BRACE) && !isAtEnd()) {
+      final declaration = parseDeclaration();
+      if (declaration != null) {
+        statements.add(declaration);
+      }
+    }
+    consume(TokenType.RIGHT_BRACE, 'Expect "}" after block.');
+    return statements;
   }
 
   PrintStatement parsePrintStatement() {

@@ -4,10 +4,15 @@ import 'token.dart';
 class Environment {
   final Map<String, Object?> _values = {};
 
-  Environment();
+  final Environment? enclosing;
+
+  Environment.global() : enclosing = null;
+
+  Environment.fromParent(Environment this.enclosing);
 
   Object? get(Token name) {
     if (_values.containsKey(name)) return _values[name];
+    if (enclosing != null) return enclosing?.get(name);
     throw DloxRuntimeError(name, 'Undefined variable "${name.lexeme}".');
   }
 
@@ -26,6 +31,10 @@ class Environment {
     if (_values.containsKey(name.lexeme)) {
       _values[name.lexeme] = value;
       return;
+    }
+
+    if (enclosing != null) {
+      return enclosing!.assign(name, value);
     }
 
     throw DloxRuntimeError(name, 'Undefined variable "${name.lexeme}".');

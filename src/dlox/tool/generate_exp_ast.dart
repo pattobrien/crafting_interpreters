@@ -57,6 +57,9 @@ Future<void> main(List<String> args) async {
       (type: 'Token', name: 'name'),
       (type: 'Expression?', name: 'initializer'),
     ],
+    'BlockStatement': [
+      (type: 'List<Statement>', name: 'statements'),
+    ],
   };
 
   defineAst(buffer, 'Statement', statementTypes);

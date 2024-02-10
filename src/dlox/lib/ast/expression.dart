@@ -131,6 +131,17 @@ class VariableStatement extends Statement {
     return visitor.visitVariableStatement(this);
   }
 }
+
+class BlockStatement extends Statement {
+  const BlockStatement(this.statements);
+
+  final List<Statement> statements;
+
+  @override
+  T accept<T>(StatementVisitor<T> visitor) {
+    return visitor.visitBlockStatement(this);
+  }
+}
 abstract interface class ExpressionVisitor<T> {
   T visitBinaryExpression(BinaryExpression expressionVisitor);
   T visitGroupingExpression(GroupingExpression expressionVisitor);
@@ -143,4 +154,5 @@ abstract interface class StatementVisitor<T> {
   T visitExpressionStatement(ExpressionStatement statementVisitor);
   T visitPrintStatement(PrintStatement statementVisitor);
   T visitVariableStatement(VariableStatement statementVisitor);
+  T visitBlockStatement(BlockStatement statementVisitor);
 }

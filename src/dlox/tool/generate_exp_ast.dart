@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:code_builder/code_builder.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:path/path.dart';
-import 'package:recase/recase.dart';
 
 Future<void> main(List<String> args) async {
   // if (args.length != 1) {
@@ -30,6 +29,11 @@ Future<void> main(List<String> args) async {
     ],
     'LiteralExpression': [
       (type: 'Object?', name: 'value'),
+    ],
+    'LogicalExpression': [
+      (type: 'Expression', name: 'left'),
+      (type: 'Token', name: 'operator'),
+      (type: 'Expression', name: 'right'),
     ],
     'UnaryExpression': [
       (type: 'Token', name: 'operator'),
@@ -198,7 +202,7 @@ void defineVisitor(
           builder.requiredParameters.add(
             Parameter((builder) {
               builder.type = refer(typeName);
-              builder.name = baseName.camelCase;
+              builder.name = 'node';
             }),
           );
         }),

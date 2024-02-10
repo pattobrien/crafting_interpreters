@@ -46,6 +46,25 @@ class LiteralExpression extends Expression {
   }
 }
 
+class LogicalExpression extends Expression {
+  const LogicalExpression(
+    this.left,
+    this.operator,
+    this.right,
+  );
+
+  final Expression left;
+
+  final Token operator;
+
+  final Expression right;
+
+  @override
+  T accept<T>(ExpressionVisitor<T> visitor) {
+    return visitor.visitLogicalExpression(this);
+  }
+}
+
 class UnaryExpression extends Expression {
   const UnaryExpression(
     this.operator,
@@ -162,17 +181,18 @@ class IfStatement extends Statement {
   }
 }
 abstract interface class ExpressionVisitor<T> {
-  T visitBinaryExpression(BinaryExpression expressionVisitor);
-  T visitGroupingExpression(GroupingExpression expressionVisitor);
-  T visitLiteralExpression(LiteralExpression expressionVisitor);
-  T visitUnaryExpression(UnaryExpression expressionVisitor);
-  T visitVariableExpression(VariableExpression expressionVisitor);
-  T visitAssignmentExpression(AssignmentExpression expressionVisitor);
+  T visitBinaryExpression(BinaryExpression node);
+  T visitGroupingExpression(GroupingExpression node);
+  T visitLiteralExpression(LiteralExpression node);
+  T visitLogicalExpression(LogicalExpression node);
+  T visitUnaryExpression(UnaryExpression node);
+  T visitVariableExpression(VariableExpression node);
+  T visitAssignmentExpression(AssignmentExpression node);
 }
 abstract interface class StatementVisitor<T> {
-  T visitExpressionStatement(ExpressionStatement statementVisitor);
-  T visitPrintStatement(PrintStatement statementVisitor);
-  T visitVariableStatement(VariableStatement statementVisitor);
-  T visitBlockStatement(BlockStatement statementVisitor);
-  T visitIfStatement(IfStatement statementVisitor);
+  T visitExpressionStatement(ExpressionStatement node);
+  T visitPrintStatement(PrintStatement node);
+  T visitVariableStatement(VariableStatement node);
+  T visitBlockStatement(BlockStatement node);
+  T visitIfStatement(IfStatement node);
 }

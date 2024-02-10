@@ -197,6 +197,22 @@ class Interpreter
       }
     }
   }
+
+  /// Evaluates the left expression and returns early depending on the value
+  /// and whether the operator is an AND or OR token.
+  @override
+  Object? visitLogicalExpression(LogicalExpression node) {
+    Object? leftValue = evaluate(node.left);
+
+    switch (node.operator.type) {
+      case TokenType.OR when isTruthy(leftValue):
+        return leftValue;
+      case TokenType.AND when !isTruthy(leftValue):
+        return leftValue;
+      default:
+        return evaluate(node.right);
+    }
+  }
 }
 
 class DloxRuntimeError implements Exception {

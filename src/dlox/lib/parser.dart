@@ -47,6 +47,33 @@ class Parser {
     return parseExpressionStatement();
   }
 
+  /// Parses an `or` expression OR lower precedence (`and` exp and lower).
+  Expression parseOr() {
+    Expression expression = parseAnd();
+
+    while (match([TokenType.OR])) {
+      Token operator = getPreviousToken();
+      Expression right = parseAnd();
+      expression = LogicalExpression(expression, operator, right);
+    }
+
+    return expression;
+  }
+
+  /// Parses and returns an `and` expression OR lower precendence (i.e.
+  /// assignment and lower).
+  Expression parseAnd() {
+    Expression exp = parseEquality();
+
+    while (match([TokenType.AND])) {
+      Token operator = getPreviousToken();
+      Expression right = parseEquality();
+      exp = LogicalExpression(exp, operator, right);
+    }
+
+    return exp;
+  }
+
   IfStatement parseIfStatement() {
     consume(TokenType.LEFT_PARENTHESIS, 'Expected "(" after "if".)');
     Expression condition = parseExpression();
@@ -92,7 +119,7 @@ class Parser {
   // note: this function is right-associative, so we recursively call
   // [parseAssignmentExpression] to parse the right hand side.
   Expression parseAssignmentExpression() {
-    Expression exp = parseEquality();
+    Expression exp = parseOr();
     if (match([TokenType.EQUAL])) {
       Token equals = getPreviousToken();
       Expression value = parseAssignmentExpression();

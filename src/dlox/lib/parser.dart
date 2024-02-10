@@ -41,9 +41,24 @@ class Parser {
   }
 
   Statement parseStatement() {
+    if (match([TokenType.IF])) return parseIfStatement();
     if (match([TokenType.PRINT])) return parsePrintStatement();
     if (match([TokenType.LEFT_BRACE])) return BlockStatement(parseBlock());
     return parseExpressionStatement();
+  }
+
+  IfStatement parseIfStatement() {
+    consume(TokenType.LEFT_PARENTHESIS, 'Expected "(" after "if".)');
+    Expression condition = parseExpression();
+    consume(TokenType.RIGHT_PARENTHESIS, 'Expected ")" after if condition.');
+
+    Statement thenBranch = parseStatement();
+    Statement? elseBranch;
+    if (match([TokenType.ELSE])) {
+      elseBranch = parseStatement();
+    }
+
+    return IfStatement(condition, thenBranch, elseBranch);
   }
 
   List<Statement> parseBlock() {

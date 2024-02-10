@@ -1,6 +1,10 @@
 import 'ast/interpreter.dart';
 import 'token.dart';
 
+/// Used for scoping variables to a particular block.
+///
+/// A single environment is created using [Environment.fromParent] for every
+/// block.
 class Environment {
   final Map<String, Object?> _values = {};
 

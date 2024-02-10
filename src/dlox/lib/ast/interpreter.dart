@@ -26,6 +26,9 @@ class Interpreter
     statement.accept(this);
   }
 
+  /// Evaluates the expression into a literal value.
+  ///
+  /// E.g. BinaryExpression of `1 + 1` evaluates to: `2`
   Object? evaluate(Expression expression) {
     return expression.accept(this);
   }
@@ -181,6 +184,17 @@ class Interpreter
       }
     } finally {
       this.environment = previous;
+    }
+  }
+
+  @override
+  void visitIfStatement(IfStatement node) {
+    if (isTruthy(evaluate(node.condition))) {
+      execute(node.thenBranch);
+    } else {
+      if (node.elseBranch != null) {
+        execute(node.elseBranch!);
+      }
     }
   }
 }

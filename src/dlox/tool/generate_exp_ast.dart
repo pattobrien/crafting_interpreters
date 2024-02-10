@@ -19,7 +19,7 @@ Future<void> main(List<String> args) async {
 
   buffer.writeCode(Directive.import('../token.dart'));
 
-  final expressionTypes = {
+  final expressionTypes = <String, List<ExpDetail>>{
     'BinaryExpression': [
       (type: 'Expression', name: 'left'),
       (type: 'Token', name: 'operator'),
@@ -46,7 +46,7 @@ Future<void> main(List<String> args) async {
 
   defineAst(buffer, 'Expression', expressionTypes);
 
-  final statementTypes = {
+  final statementTypes = <String, List<ExpDetail>>{
     'ExpressionStatement': [
       (type: 'Expression', name: 'expression'),
     ],
@@ -59,6 +59,11 @@ Future<void> main(List<String> args) async {
     ],
     'BlockStatement': [
       (type: 'List<Statement>', name: 'statements'),
+    ],
+    'IfStatement': [
+      (type: 'Expression', name: 'condition'),
+      (type: 'Statement', name: 'thenBranch'),
+      (type: 'Statement?', name: 'elseBranch'),
     ],
   };
 

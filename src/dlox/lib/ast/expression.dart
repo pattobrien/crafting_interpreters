@@ -142,6 +142,25 @@ class BlockStatement extends Statement {
     return visitor.visitBlockStatement(this);
   }
 }
+
+class IfStatement extends Statement {
+  const IfStatement(
+    this.condition,
+    this.thenBranch,
+    this.elseBranch,
+  );
+
+  final Expression condition;
+
+  final Statement thenBranch;
+
+  final Statement? elseBranch;
+
+  @override
+  T accept<T>(StatementVisitor<T> visitor) {
+    return visitor.visitIfStatement(this);
+  }
+}
 abstract interface class ExpressionVisitor<T> {
   T visitBinaryExpression(BinaryExpression expressionVisitor);
   T visitGroupingExpression(GroupingExpression expressionVisitor);
@@ -155,4 +174,5 @@ abstract interface class StatementVisitor<T> {
   T visitPrintStatement(PrintStatement statementVisitor);
   T visitVariableStatement(VariableStatement statementVisitor);
   T visitBlockStatement(BlockStatement statementVisitor);
+  T visitIfStatement(IfStatement statementVisitor);
 }

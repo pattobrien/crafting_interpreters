@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'ast/expression.dart';
 import 'ast/interpreter.dart';
 import 'parser.dart';
 import 'scanner.dart';
@@ -26,6 +25,17 @@ class DLox {
     else {
       runPrompt();
     }
+  }
+
+  /// Execute our scanner and parser on some source code.
+  void run(String source) {
+    final scanner = Scanner(source);
+    final tokens = scanner.scanTokens();
+
+    final parser = Parser(tokens);
+    final statements = parser.parse();
+
+    interpreter.interpret(statements);
   }
 
   static void reportError(int line, String message) {
@@ -72,23 +82,5 @@ class DLox {
       run(line);
       hadError = false;
     }
-  }
-
-  /// Execute our scanner and parser on some source code.
-  void run(String source) {
-    final scanner = Scanner(source);
-    final tokens = scanner.scanTokens();
-    final parser = Parser(tokens);
-    List<Statement>? expression = parser.parse();
-
-    // if (hadError) return;
-    interpreter.interpret(expression!);
-
-    // print(const AstPrinter().printNode(expression));
-
-    // // print tokens, for now
-    // for (final token in tokens) {
-    //   print(token);
-    // }
   }
 }

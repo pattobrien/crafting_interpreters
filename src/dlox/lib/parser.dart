@@ -3,22 +3,41 @@ import 'dlox.dart';
 import 'token.dart';
 import 'token_type.dart';
 
+/// Takes a flat list of [tokens] and outputs AstNodes.
 class Parser {
   Parser(this.tokens);
 
   List<Token> tokens;
   int current = 0;
 
-  List<Statement>? parse() {
+  List<Statement> parse() {
+    List<Statement> statements = [];
+    while (!isAtEnd()) {
+      final statement = parseDeclaration();
+      if (statement != null) statements.add(statement);
+    }
+    return statements;
+  }
+
+  Statement? parseDeclaration() {
     try {
-      List<Statement> statements = [];
-      while (!isAtEnd()) {
-        statements.add(parseStatement());
-      }
-      return statements;
+      if (match([TokenType.VAR])) return parseVarDeclaration();
+      return parseStatement();
     } on ParserError {
+      synchronize();
       return null;
     }
+  }
+
+  Statement? parseVarDeclaration() {
+    Token name = consume(TokenType.IDENTIFIER, 'Expect variable name.');
+    Expression? initializer;
+
+    if (match([TokenType.EQUAL])) {
+      initializer = parseExpression();
+    }
+    consume(TokenType.SEMICOLON, 'Expected ";" after variable declaration.');
+    return VariableStatement(name, initializer);
   }
 
   Statement parseStatement() {
@@ -109,6 +128,8 @@ class Parser {
     return parsePrimary();
   }
 
+  /// Checks if the next token is of [type], and otherwise throws an error
+  /// with [message].
   Token consume(TokenType type, String message) {
     if (check(type)) return advance();
     throw error(peek(), message);
@@ -126,6 +147,10 @@ class Parser {
 
     if (match([TokenType.NUMBER, TokenType.STRING])) {
       return LiteralExpression(getPreviousToken().literal);
+    }
+
+    if (match([TokenType.IDENTIFIER])) {
+      return VariableExpression(getPreviousToken());
     }
 
     if (match([TokenType.LEFT_PARENTHESIS])) {
@@ -161,6 +186,7 @@ class Parser {
     }
   }
 
+  /// Returns true and advances if the next token matches any of [types].
   bool match(List<TokenType> types) {
     if (types.any((element) => check(element))) {
       advance();

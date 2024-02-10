@@ -61,6 +61,17 @@ class UnaryExpression extends Expression {
     return visitor.visitUnaryExpression(this);
   }
 }
+
+class VariableExpression extends Expression {
+  const VariableExpression(this.name);
+
+  final Token name;
+
+  @override
+  T accept<T>(ExpressionVisitor<T> visitor) {
+    return visitor.visitVariableExpression(this);
+  }
+}
 sealed class Statement {
   const Statement();
 
@@ -88,13 +99,31 @@ class PrintStatement extends Statement {
     return visitor.visitPrintStatement(this);
   }
 }
+
+class VariableStatement extends Statement {
+  const VariableStatement(
+    this.name,
+    this.initializer,
+  );
+
+  final Token name;
+
+  final Expression? initializer;
+
+  @override
+  T accept<T>(StatementVisitor<T> visitor) {
+    return visitor.visitVariableStatement(this);
+  }
+}
 abstract interface class ExpressionVisitor<T> {
   T visitBinaryExpression(BinaryExpression expressionVisitor);
   T visitGroupingExpression(GroupingExpression expressionVisitor);
   T visitLiteralExpression(LiteralExpression expressionVisitor);
   T visitUnaryExpression(UnaryExpression expressionVisitor);
+  T visitVariableExpression(VariableExpression expressionVisitor);
 }
 abstract interface class StatementVisitor<T> {
   T visitExpressionStatement(ExpressionStatement statementVisitor);
   T visitPrintStatement(PrintStatement statementVisitor);
+  T visitVariableStatement(VariableStatement statementVisitor);
 }

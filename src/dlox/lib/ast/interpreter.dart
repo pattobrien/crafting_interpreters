@@ -132,6 +132,17 @@ class Interpreter
     Object? value = evaluate(node.expression);
     print(value);
   }
+
+  @override
+  void visitVariableStatement(VariableStatement statementVisitor) {
+    // TODO: implement visitVariableStatement
+  }
+
+  @override
+  Object? visitVariableExpression(VariableExpression expressionVisitor) {
+    // TODO: implement visitVariableExpression
+    throw UnimplementedError();
+  }
 }
 
 class DloxRuntimeError implements Exception {

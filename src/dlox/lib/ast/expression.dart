@@ -180,6 +180,22 @@ class IfStatement extends Statement {
     return visitor.visitIfStatement(this);
   }
 }
+
+class WhileStatement extends Statement {
+  const WhileStatement(
+    this.condition,
+    this.body,
+  );
+
+  final Expression condition;
+
+  final Statement body;
+
+  @override
+  T accept<T>(StatementVisitor<T> visitor) {
+    return visitor.visitWhileStatement(this);
+  }
+}
 abstract interface class ExpressionVisitor<T> {
   T visitBinaryExpression(BinaryExpression node);
   T visitGroupingExpression(GroupingExpression node);
@@ -195,4 +211,5 @@ abstract interface class StatementVisitor<T> {
   T visitVariableStatement(VariableStatement node);
   T visitBlockStatement(BlockStatement node);
   T visitIfStatement(IfStatement node);
+  T visitWhileStatement(WhileStatement node);
 }

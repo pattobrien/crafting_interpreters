@@ -69,6 +69,10 @@ Future<void> main(List<String> args) async {
       (type: 'Statement', name: 'thenBranch'),
       (type: 'Statement?', name: 'elseBranch'),
     ],
+    'WhileStatement': [
+      (type: 'Expression', name: 'condition'),
+      (type: 'Statement', name: 'body'),
+    ]
   };
 
   defineAst(buffer, 'Statement', statementTypes);

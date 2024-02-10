@@ -22,15 +22,15 @@ class Interpreter
     }
   }
 
-  void execute(Statement statement) {
-    statement.accept(this);
+  void execute(Statement node) {
+    node.accept(this);
   }
 
   /// Evaluates the expression into a literal value.
   ///
   /// E.g. BinaryExpression of `1 + 1` evaluates to: `2`
-  Object? evaluate(Expression expression) {
-    return expression.accept(this);
+  Object? evaluate(Expression node) {
+    return node.accept(this);
   }
 
   bool isTruthy(Object? object) {
@@ -57,39 +57,39 @@ class Interpreter
   }
 
   @override
-  Object? visitBinaryExpression(BinaryExpression expression) {
-    Object? left = evaluate(expression.left);
-    Object? right = evaluate(expression.right);
+  Object? visitBinaryExpression(BinaryExpression node) {
+    Object? left = evaluate(node.left);
+    Object? right = evaluate(node.right);
 
-    switch (expression.operator.type) {
+    switch (node.operator.type) {
       case TokenType.MINUS:
-        checkNumberOperands(expression.operator, left, right);
+        checkNumberOperands(node.operator, left, right);
         return (left as num) - (right as num);
       case TokenType.SLASH:
-        checkNumberOperands(expression.operator, left, right);
+        checkNumberOperands(node.operator, left, right);
         return (left as num) / (right as num);
       case TokenType.STAR:
-        checkNumberOperands(expression.operator, left, right);
+        checkNumberOperands(node.operator, left, right);
         return (left as num) * (right as num);
       case TokenType.PLUS:
         if (left is num && right is num) return left + right;
         if (left is String && right is String) return left + right;
 
         throw DloxRuntimeError(
-          expression.operator,
+          node.operator,
           'Operands must be two numbers or two strings.',
         );
       case TokenType.GREATER:
-        checkNumberOperands(expression.operator, left, right);
+        checkNumberOperands(node.operator, left, right);
         return (left as num) > (right as num);
       case TokenType.GREATER_EQUAL:
-        checkNumberOperands(expression.operator, left, right);
+        checkNumberOperands(node.operator, left, right);
         return (left as num) >= (right as num);
       case TokenType.LESS:
-        checkNumberOperands(expression.operator, left, right);
+        checkNumberOperands(node.operator, left, right);
         return (left as num) < (right as num);
       case TokenType.LESS_EQUAL:
-        checkNumberOperands(expression.operator, left, right);
+        checkNumberOperands(node.operator, left, right);
         return (left as num) <= (right as num);
       case TokenType.BANG_EQUAL:
         return !isEqual(left, right);
@@ -103,24 +103,24 @@ class Interpreter
   }
 
   @override
-  Object? visitGroupingExpression(GroupingExpression expression) {
-    return evaluate(expression.expression);
+  Object? visitGroupingExpression(GroupingExpression node) {
+    return evaluate(node.expression);
   }
 
   @override
-  Object? visitLiteralExpression(LiteralExpression expression) {
-    return expression.value;
+  Object? visitLiteralExpression(LiteralExpression node) {
+    return node.value;
   }
 
   @override
-  Object? visitUnaryExpression(UnaryExpression expression) {
-    Object? right = evaluate(expression.right);
+  Object? visitUnaryExpression(UnaryExpression node) {
+    Object? right = evaluate(node.right);
 
-    switch (expression.operator.type) {
+    switch (node.operator.type) {
       case TokenType.BANG:
         return !isTruthy(right);
       case TokenType.MINUS:
-        checkNumberOperand(expression.operator, right);
+        checkNumberOperand(node.operator, right);
         return -(right as num);
       default:
         // TODO: handle error
@@ -164,9 +164,9 @@ class Interpreter
   }
 
   @override
-  void visitBlockStatement(BlockStatement statementVisitor) {
+  void visitBlockStatement(BlockStatement node) {
     executeBlock(
-      statementVisitor.statements,
+      node.statements,
       Environment.fromParent(environment),
     );
   }
@@ -211,6 +211,15 @@ class Interpreter
         return leftValue;
       default:
         return evaluate(node.right);
+    }
+  }
+
+  /// Continues to evaluate the condition until it's false, while executing the
+  /// body of the [node].
+  @override
+  void visitWhileStatement(WhileStatement node) {
+    while (isTruthy(evaluate(node.condition))) {
+      execute(node.body);
     }
   }
 }

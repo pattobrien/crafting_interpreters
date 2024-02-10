@@ -47,6 +47,14 @@ class Parser {
     return parseExpressionStatement();
   }
 
+  WhileStatement parseWhile() {
+    consume(TokenType.LEFT_PARENTHESIS, 'Expect "(" after "while".');
+    Expression condition = parseExpression();
+    consume(TokenType.RIGHT_PARENTHESIS, 'Expect ")" after condition.');
+    Statement body = parseStatement();
+    return WhileStatement(condition, body);
+  }
+
   /// Parses an `or` expression OR lower precedence (`and` exp and lower).
   Expression parseOr() {
     Expression expression = parseAnd();

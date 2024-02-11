@@ -13,7 +13,8 @@ A lox interpreter written in Dart.
 - 9.2: Conditional Execution
 - 9.3: Logical Operators
 - 9.4: While loops
-- 10: Functions <- ended at the start of this section
+- 10: Functions
+- 10.5: Return Statements
 
 ## Notes
 

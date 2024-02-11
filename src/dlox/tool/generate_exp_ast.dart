@@ -83,6 +83,10 @@ Future<void> main(List<String> args) async {
       (type: 'Expression', name: 'condition'),
       (type: 'Statement', name: 'body'),
     ],
+    'ReturnStatement': [
+      (type: 'Expression?', name: 'expression'),
+      (type: 'Token', name: 'keyword'),
+    ],
   };
 
   defineAst(buffer, 'Statement', statementTypes);

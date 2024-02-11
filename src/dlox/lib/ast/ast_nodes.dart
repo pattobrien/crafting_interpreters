@@ -234,6 +234,22 @@ class WhileStatement extends Statement {
     return visitor.visitWhileStatement(this);
   }
 }
+
+class ReturnStatement extends Statement {
+  const ReturnStatement(
+    this.expression,
+    this.keyword,
+  );
+
+  final Expression? expression;
+
+  final Token keyword;
+
+  @override
+  T accept<T>(StatementVisitor<T> visitor) {
+    return visitor.visitReturnStatement(this);
+  }
+}
 abstract interface class ExpressionVisitor<T> {
   T visitBinaryExpression(BinaryExpression node);
   T visitGroupingExpression(GroupingExpression node);
@@ -252,4 +268,5 @@ abstract interface class StatementVisitor<T> {
   T visitFunctionStatement(FunctionStatement node);
   T visitIfStatement(IfStatement node);
   T visitWhileStatement(WhileStatement node);
+  T visitReturnStatement(ReturnStatement node);
 }

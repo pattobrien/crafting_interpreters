@@ -25,7 +25,7 @@ class Interpreter
       for (final statement in statements) {
         execute(statement);
       }
-    } on DloxRuntimeError catch (error) {
+    } on DloxRuntimeError catch (error, stack) {
       DLox.runtimeError(error);
     }
   }
@@ -159,7 +159,8 @@ class Interpreter
 
   @override
   Object? visitVariableExpression(VariableExpression node) {
-    return environment.get(node.name);
+    final value = environment.get(node.name);
+    return value;
   }
 
   @override
@@ -167,7 +168,7 @@ class Interpreter
     AssignmentExpression node,
   ) {
     Object? value = evaluate(node.value);
-    environment.assign(node.name, node.value);
+    environment.assign(node.name, value);
     return value;
   }
 
@@ -260,6 +261,14 @@ class Interpreter
     LoxFunction function = LoxFunction(node);
     environment.define(node.name.lexeme, function);
   }
+
+  @override
+  void visitReturnStatement(ReturnStatement node) {
+    Object? value;
+    if (node.expression != null) value = evaluate(node.expression!);
+
+    throw Return(value);
+  }
 }
 
 class DloxRuntimeError implements Exception {
@@ -270,4 +279,10 @@ class DloxRuntimeError implements Exception {
 
   @override
   String toString() => message;
+}
+
+class Return implements Exception {
+  final Object? value;
+
+  const Return(this.value);
 }

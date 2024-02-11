@@ -86,9 +86,22 @@ class Parser {
   Statement parseStatement() {
     if (match([TokenType.FOR])) return parseForStatement();
     if (match([TokenType.IF])) return parseIfStatement();
+    if (match([TokenType.RETURN])) return parseReturnStatement();
     if (match([TokenType.PRINT])) return parsePrintStatement();
     if (match([TokenType.LEFT_BRACE])) return BlockStatement(parseBlock());
     return parseExpressionStatement();
+  }
+
+  ReturnStatement parseReturnStatement() {
+    Token keyword = getPreviousToken();
+    Expression? value;
+    if (!check(TokenType.SEMICOLON)) {
+      value = parseExpression();
+    }
+
+    consumeToken(TokenType.SEMICOLON, 'Expected ";" after return value.');
+
+    return ReturnStatement(value, keyword);
   }
 
   Statement parseForStatement() {

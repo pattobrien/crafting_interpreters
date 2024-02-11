@@ -130,7 +130,9 @@ class Parser {
       increment = parseExpression();
     }
     consumeToken(
-        TokenType.RIGHT_PARENTHESIS, 'Expected ")" after for clauses.');
+      TokenType.RIGHT_PARENTHESIS,
+      'Expected ")" after for clauses.',
+    );
 
     Statement body = parseStatement();
 

@@ -9,9 +9,13 @@ import 'lox_callable.dart';
 /// - https://craftinginterpreters.com/functions.html#function-objects
 /// - param -> arg binding diagram: https://craftinginterpreters.com/image/functions/binding.png
 class LoxFunction implements LoxCallable {
-  const LoxFunction(this.functionDeclaration);
+  const LoxFunction(
+    this.functionDeclaration,
+    this.closure,
+  );
 
   final FunctionStatement functionDeclaration;
+  final Environment closure;
 
   @override
   int get arity => functionDeclaration.params.length;
@@ -19,7 +23,7 @@ class LoxFunction implements LoxCallable {
   /// Where all user-defined function invocations are born.
   @override
   Object? call(Interpreter interpreter, List<Object?> arguments) {
-    final environment = Environment.fromParent(interpreter.globals);
+    final environment = Environment.fromParent(closure);
     for (var i = 0; i < functionDeclaration.params.length; i++) {
       environment.define(functionDeclaration.params[i].lexeme, arguments[i]);
     }

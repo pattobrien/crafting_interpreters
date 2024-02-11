@@ -15,6 +15,7 @@ A lox interpreter written in Dart.
 - 9.4: While loops
 - 10: Functions
 - 10.5: Return Statements
+- 11: Resolving and Binding
 
 ## Notes
 
@@ -72,3 +73,4 @@ NOTE: The implementation of the for statement sugar means that we don't implemen
 - pattern matching
 - meta programming syntax
 - first-class functions
+- nested functions

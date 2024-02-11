@@ -258,7 +258,7 @@ class Interpreter
 
   @override
   void visitFunctionStatement(FunctionStatement node) {
-    LoxFunction function = LoxFunction(node);
+    LoxFunction function = LoxFunction(node, environment);
     environment.define(node.name.lexeme, function);
   }
 

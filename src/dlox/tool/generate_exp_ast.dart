@@ -46,6 +46,11 @@ Future<void> main(List<String> args) async {
       (type: 'Token', name: 'name'),
       (type: 'Expression', name: 'value'),
     ],
+    'CallExpression': [
+      (type: 'Expression', name: 'callee'),
+      (type: 'Token', name: 'closingParenthesis'),
+      (type: 'List<Expression>', name: 'arguments'),
+    ],
   };
 
   defineAst(buffer, 'Expression', expressionTypes);
@@ -63,6 +68,11 @@ Future<void> main(List<String> args) async {
     ],
     'BlockStatement': [
       (type: 'List<Statement>', name: 'statements'),
+    ],
+    'FunctionStatement': [
+      (type: 'Token', name: 'name'),
+      (type: 'List<Token>', name: 'params'),
+      (type: 'List<Statement>', name: 'body'),
     ],
     'IfStatement': [
       (type: 'Expression', name: 'condition'),

@@ -1,0 +1,4 @@
+enum FunctionKind {
+  function,
+  method,
+}

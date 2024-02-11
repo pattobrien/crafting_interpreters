@@ -1,14 +1,22 @@
 import 'ast/ast_nodes.dart';
 import 'dlox.dart';
 import 'environment.dart';
+import 'functions/clock_callable.dart';
+import 'models/lox_callable.dart';
+import 'models/lox_function.dart';
 import 'models/token.dart';
 import 'models/token_type.dart';
 
 class Interpreter
     implements ExpressionVisitor<Object?>, StatementVisitor<void> {
-  Interpreter();
+  Interpreter() {
+    globals.define('clock', const ClockCallable());
+  }
 
-  Environment environment = Environment.global();
+  final Environment globals = Environment.global();
+  Environment get environment => _selectedEnvironment ?? globals;
+
+  Environment? _selectedEnvironment;
 
   void interpret(List<Statement> statements) {
     try {
@@ -177,13 +185,13 @@ class Interpreter
   ) {
     final previous = this.environment;
     try {
-      this.environment = environment;
+      _selectedEnvironment = environment;
 
       for (final statement in statements) {
         execute(statement);
       }
     } finally {
-      this.environment = previous;
+      _selectedEnvironment = previous;
     }
   }
 
@@ -221,6 +229,36 @@ class Interpreter
     while (isTruthy(evaluate(node.condition))) {
       execute(node.body);
     }
+  }
+
+  @override
+  Object? visitCallExpression(CallExpression node) {
+    Object? callee = evaluate(node.callee);
+    List<Object?> arguments = [];
+    for (final argument in node.arguments) {
+      arguments.add(evaluate(argument));
+    }
+
+    if (callee is! LoxCallable) {
+      throw DloxRuntimeError(
+        node.closingParenthesis,
+        'Can only call functions and classes.',
+      );
+    }
+
+    if (arguments.length != callee.arity) {
+      throw DloxRuntimeError(
+        node.closingParenthesis,
+        'Expected ${callee.arity} arguments but got ${arguments.length}.',
+      );
+    }
+    return callee.call(this, arguments);
+  }
+
+  @override
+  void visitFunctionStatement(FunctionStatement node) {
+    LoxFunction function = LoxFunction(node);
+    environment.define(node.name.lexeme, function);
   }
 }
 

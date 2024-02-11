@@ -107,6 +107,25 @@ class AssignmentExpression extends Expression {
     return visitor.visitAssignmentExpression(this);
   }
 }
+
+class CallExpression extends Expression {
+  const CallExpression(
+    this.callee,
+    this.closingParenthesis,
+    this.arguments,
+  );
+
+  final Expression callee;
+
+  final Token closingParenthesis;
+
+  final List<Expression> arguments;
+
+  @override
+  T accept<T>(ExpressionVisitor<T> visitor) {
+    return visitor.visitCallExpression(this);
+  }
+}
 sealed class Statement {
   const Statement();
 
@@ -162,6 +181,25 @@ class BlockStatement extends Statement {
   }
 }
 
+class FunctionStatement extends Statement {
+  const FunctionStatement(
+    this.name,
+    this.params,
+    this.body,
+  );
+
+  final Token name;
+
+  final List<Token> params;
+
+  final List<Statement> body;
+
+  @override
+  T accept<T>(StatementVisitor<T> visitor) {
+    return visitor.visitFunctionStatement(this);
+  }
+}
+
 class IfStatement extends Statement {
   const IfStatement(
     this.condition,
@@ -204,12 +242,14 @@ abstract interface class ExpressionVisitor<T> {
   T visitUnaryExpression(UnaryExpression node);
   T visitVariableExpression(VariableExpression node);
   T visitAssignmentExpression(AssignmentExpression node);
+  T visitCallExpression(CallExpression node);
 }
 abstract interface class StatementVisitor<T> {
   T visitExpressionStatement(ExpressionStatement node);
   T visitPrintStatement(PrintStatement node);
   T visitVariableStatement(VariableStatement node);
   T visitBlockStatement(BlockStatement node);
+  T visitFunctionStatement(FunctionStatement node);
   T visitIfStatement(IfStatement node);
   T visitWhileStatement(WhileStatement node);
 }

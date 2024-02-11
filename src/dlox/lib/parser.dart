@@ -1,5 +1,6 @@
 import 'ast/ast_nodes.dart';
 import 'dlox.dart';
+import 'models/function_kind.dart';
 import 'models/token.dart';
 import 'models/token_type.dart';
 
@@ -21,6 +22,9 @@ class Parser {
 
   Statement? parseDeclaration() {
     try {
+      if (match([TokenType.FUN])) {
+        return parseFunctionDeclaration(FunctionKind.function);
+      }
       if (match([TokenType.VAR])) return parseVarDeclaration();
       return parseStatement();
     } on ParserError {
@@ -29,14 +33,43 @@ class Parser {
     }
   }
 
+  FunctionStatement parseFunctionDeclaration(FunctionKind kind) {
+    Token name =
+        consumeToken(TokenType.IDENTIFIER, 'Expected ${kind.name} name.');
+    List<Token> parameters = [];
+    if (!check(TokenType.RIGHT_PARENTHESIS)) {
+      do {
+        if (parameters.length >= 255) {
+          reportError(peek(), 'Cant\'t have more than 255 parameters.');
+        }
+
+        parameters.add(
+          consumeToken(TokenType.IDENTIFIER, 'Expected paremeter name.'),
+        );
+      } while (match([TokenType.COMMA]));
+    }
+    consumeToken(TokenType.RIGHT_PARENTHESIS, 'Expected ")" after parameters.');
+
+    // -- parse the body --
+    consumeToken(
+      TokenType.LEFT_BRACE,
+      'Expected "{" before "${kind.name}" body.',
+    );
+
+    final body = parseBlock();
+
+    return FunctionStatement(name, parameters, body);
+  }
+
   Statement? parseVarDeclaration() {
-    Token name = consume(TokenType.IDENTIFIER, 'Expect variable name.');
+    Token name = consumeToken(TokenType.IDENTIFIER, 'Expect variable name.');
     Expression? initializer;
 
     if (match([TokenType.EQUAL])) {
       initializer = parseExpression();
     }
-    consume(TokenType.SEMICOLON, 'Expected ";" after variable declaration.');
+    consumeToken(
+        TokenType.SEMICOLON, 'Expected ";" after variable declaration.');
     return VariableStatement(name, initializer);
   }
 
@@ -49,7 +82,7 @@ class Parser {
   }
 
   Statement parseForStatement() {
-    consume(TokenType.LEFT_PARENTHESIS, 'Expect "(" after "for".');
+    consumeToken(TokenType.LEFT_PARENTHESIS, 'Expect "(" after "for".');
 
     // -- initializer clause --
     Statement? initializer;
@@ -66,14 +99,15 @@ class Parser {
     if (!check(TokenType.SEMICOLON)) {
       condition = parseExpression();
     }
-    consume(TokenType.SEMICOLON, 'Expected ";" after loop condition.');
+    consumeToken(TokenType.SEMICOLON, 'Expected ";" after loop condition.');
 
     // -- increment clause --
     Expression? increment;
     if (!check(TokenType.RIGHT_PARENTHESIS)) {
       increment = parseExpression();
     }
-    consume(TokenType.RIGHT_PARENTHESIS, 'Expected ")" after for clauses.');
+    consumeToken(
+        TokenType.RIGHT_PARENTHESIS, 'Expected ")" after for clauses.');
 
     Statement body = parseStatement();
 
@@ -98,9 +132,9 @@ class Parser {
   }
 
   WhileStatement parseWhile() {
-    consume(TokenType.LEFT_PARENTHESIS, 'Expect "(" after "while".');
+    consumeToken(TokenType.LEFT_PARENTHESIS, 'Expect "(" after "while".');
     Expression condition = parseExpression();
-    consume(TokenType.RIGHT_PARENTHESIS, 'Expect ")" after condition.');
+    consumeToken(TokenType.RIGHT_PARENTHESIS, 'Expect ")" after condition.');
     Statement body = parseStatement();
     return WhileStatement(condition, body);
   }
@@ -133,9 +167,10 @@ class Parser {
   }
 
   IfStatement parseIfStatement() {
-    consume(TokenType.LEFT_PARENTHESIS, 'Expected "(" after "if".)');
+    consumeToken(TokenType.LEFT_PARENTHESIS, 'Expected "(" after "if".)');
     Expression condition = parseExpression();
-    consume(TokenType.RIGHT_PARENTHESIS, 'Expected ")" after if condition.');
+    consumeToken(
+        TokenType.RIGHT_PARENTHESIS, 'Expected ")" after if condition.');
 
     Statement thenBranch = parseStatement();
     Statement? elseBranch;
@@ -154,19 +189,19 @@ class Parser {
         statements.add(declaration);
       }
     }
-    consume(TokenType.RIGHT_BRACE, 'Expect "}" after block.');
+    consumeToken(TokenType.RIGHT_BRACE, 'Expect "}" after block.');
     return statements;
   }
 
   PrintStatement parsePrintStatement() {
     Expression value = parseExpression();
-    consume(TokenType.SEMICOLON, "Expect ';' after value.");
+    consumeToken(TokenType.SEMICOLON, "Expect ';' after value.");
     return PrintStatement(value);
   }
 
   ExpressionStatement parseExpressionStatement() {
     Expression value = parseExpression();
-    consume(TokenType.SEMICOLON, "Expect ';' after value.");
+    consumeToken(TokenType.SEMICOLON, "Expect ';' after value.");
     return ExpressionStatement(value);
   }
 
@@ -187,7 +222,7 @@ class Parser {
         return AssignmentExpression(name, value);
       }
 
-      error(equals, 'Invalid assignment target.');
+      reportError(equals, 'Invalid assignment target.');
     }
 
     return exp;
@@ -257,17 +292,50 @@ class Parser {
       return UnaryExpression(operator, right);
     }
 
-    return parsePrimary();
+    // return parsePrimary();
+    return parseCall();
+  }
+
+  Expression parseCall() {
+    Expression exp = parsePrimary();
+    while (true) {
+      if (match([TokenType.LEFT_PARENTHESIS])) {
+        exp = finishCall(exp);
+      } else {
+        break;
+      }
+    }
+    return exp;
+  }
+
+  Expression finishCall(Expression callee) {
+    List<Expression> arguments = [];
+    if (!check(TokenType.RIGHT_PARENTHESIS)) {
+      do {
+        if (arguments.length >= 255) {
+          reportError(peek(), 'Can\'t have more than 255 arguments.');
+        }
+        arguments.add(parseExpression());
+      } while (match([TokenType.COMMA]));
+    }
+
+    Token closingParenthesis = consumeToken(
+      TokenType.RIGHT_PARENTHESIS,
+      'Expect ")" afer arguments.',
+    );
+
+    return CallExpression(callee, closingParenthesis, arguments);
   }
 
   /// Checks if the next token is of [type], and otherwise throws an error
   /// with [message].
-  Token consume(TokenType type, String message) {
+  Token consumeToken(TokenType type, String message) {
     if (check(type)) return advance();
-    throw error(peek(), message);
+    throw reportError(peek(), message);
   }
 
-  ParserError error(Token token, String message) {
+  /// Reports an error, but doesn't throw it.
+  ParserError reportError(Token token, String message) {
     DLox.error(token, message);
     return ParserError();
   }
@@ -287,11 +355,11 @@ class Parser {
 
     if (match([TokenType.LEFT_PARENTHESIS])) {
       Expression exp = parseExpression();
-      consume(TokenType.RIGHT_PARENTHESIS, "Expect ')' after expression.");
+      consumeToken(TokenType.RIGHT_PARENTHESIS, "Expect ')' after expression.");
       return GroupingExpression(exp);
     }
 
-    throw error(peek(), 'Expect expression.');
+    throw reportError(peek(), 'Expect expression.');
   }
 
   /// After an error is thrown, this method should be called in order to discard

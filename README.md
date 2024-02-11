@@ -70,3 +70,4 @@ NOTE: The implementation of the for statement sugar means that we don't implemen
 
 - pattern matching
 - meta programming syntax
+- first-class functions

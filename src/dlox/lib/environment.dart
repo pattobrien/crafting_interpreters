@@ -20,7 +20,7 @@ class Environment {
     throw DloxRuntimeError(name, 'Undefined variable "${name.lexeme}".');
   }
 
-  ///
+  /// Adds a variable / function declaration to this environment.
   void define(String name, Object? value) {
     if (value == null) {
       _values.remove(name);

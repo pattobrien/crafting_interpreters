@@ -11,6 +11,8 @@ class Parser {
   List<Token> tokens;
   int current = 0;
 
+  Token get currentToken => tokens[current];
+
   List<Statement> parse() {
     List<Statement> statements = [];
     while (!isAtEnd()) {
@@ -34,8 +36,16 @@ class Parser {
   }
 
   FunctionStatement parseFunctionDeclaration(FunctionKind kind) {
-    Token name =
-        consumeToken(TokenType.IDENTIFIER, 'Expected ${kind.name} name.');
+    Token name = consumeToken(
+      TokenType.IDENTIFIER,
+      'Expected ${kind.name} name.',
+    );
+
+    consumeToken(
+      TokenType.LEFT_PARENTHESIS,
+      'Expected "(" after ${kind.name} name.',
+    );
+
     List<Token> parameters = [];
     if (!check(TokenType.RIGHT_PARENTHESIS)) {
       do {

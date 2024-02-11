@@ -1,0 +1,33 @@
+
+// -- expression statements --
+print "-----------------";
+print "print statements: ";
+print 1 + 1;
+
+// -- variable declarations --
+var a = "global a";
+print "";
+print "-----------------";
+print a;
+
+
+// block statement, with its own local scope
+{
+  var a = "local a";
+  print "";
+  print "Local variables: " + a; // global a is shadowed by local a variable
+}
+// native clock function
+print "-----------------";
+print "current time: ";
+print clock();
+
+
+// -- function declarations --
+fun sayHi(first, last) {
+  print "Hi, " + first + " " + last + "!";
+}
+
+print "";
+print "-----------------";
+sayHi("Dear", "Reader");

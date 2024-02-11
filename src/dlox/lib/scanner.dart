@@ -10,7 +10,7 @@ class Scanner {
 
   int start = 0;
   int current = 0;
-  int line = 1; // used for track line numbers used in errors
+  int line = 1;
 
   bool isAtEnd() {
     return current >= source.length;
@@ -59,7 +59,7 @@ class Scanner {
           }
         }(),
       ' ' || '\\r' || '\\t' => () {},
-      '\\n' => line++,
+      '\n' => line++,
       '"' => handleString(),
       _ => () {
           if (isDigit(character)) {

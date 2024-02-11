@@ -1,2 +1,3 @@
 var a = "global a";
-print a;
+var b = "global b";
+var c = "global c";

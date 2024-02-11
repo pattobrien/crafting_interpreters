@@ -15,7 +15,7 @@ class Environment {
   Environment.fromParent(Environment this.enclosing);
 
   Object? get(Token name) {
-    if (_values.containsKey(name)) return _values[name];
+    if (_values.containsKey(name.lexeme)) return _values[name.lexeme];
     if (enclosing != null) return enclosing?.get(name);
     throw DloxRuntimeError(name, 'Undefined variable "${name.lexeme}".');
   }

@@ -58,7 +58,7 @@ class Scanner {
             addToken(TokenType.SLASH);
           }
         }(),
-      ' ' || '\\r' || '\\t' => () {},
+      ' ' || '\r' || '\t' => () {},
       '\n' => line++,
       '"' => handleString(),
       _ => () {

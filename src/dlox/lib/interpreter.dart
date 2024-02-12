@@ -197,6 +197,8 @@ class Interpreter
     } else {
       globals.assign(node.name, value);
     }
+
+    return value;
   }
 
   @override

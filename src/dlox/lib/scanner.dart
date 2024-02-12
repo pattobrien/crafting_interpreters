@@ -8,22 +8,24 @@ class Scanner {
 
   Scanner(this.source);
 
-  int start = 0;
-  int current = 0;
-  int line = 1;
+  /// The index of the first character in the current lexeme being scanned.
+  int startCharIndex = 0;
 
-  bool isAtEnd() {
-    return current >= source.length;
-  }
+  /// The index of the current character being scanned.
+  int currentCharIndex = 0;
+  int currentLine = 1;
+
+  bool isAtEnd() => currentCharIndex >= source.length;
+  bool isNotAtEnd() => !isAtEnd();
 
   List<Token> scanTokens() {
-    while (!isAtEnd()) {
+    while (isNotAtEnd()) {
       // loop starts at the beginning of the next lexeme;
-      start = current;
+      startCharIndex = currentCharIndex;
       scanToken();
     }
 
-    tokens.add(Token(TokenType.EOF, '', line: line, literal: null));
+    tokens.add(Token(TokenType.EOF, '', line: currentLine, literal: null));
     return tokens;
   }
 
@@ -59,7 +61,7 @@ class Scanner {
           }
         }(),
       ' ' || '\r' || '\t' => () {},
-      '\n' => line++,
+      '\n' => currentLine++,
       '"' => handleString(),
       _ => () {
           if (isDigit(character)) {
@@ -67,7 +69,7 @@ class Scanner {
           } else if (isAlpha(character)) {
             identifier();
           } else {
-            DLox.reportError(line, 'Unexpected character.');
+            DLox.reportError(currentLine, 'Unexpected character.');
           }
         }(),
     };
@@ -78,7 +80,7 @@ class Scanner {
       advance();
     }
 
-    final text = source.substring(start, current);
+    final text = source.substring(startCharIndex, currentCharIndex);
     final type = keywords[text] ?? TokenType.IDENTIFIER;
     addToken(type);
   }
@@ -127,12 +129,13 @@ class Scanner {
       }
     }
 
-    addToken(TokenType.NUMBER, double.parse(source.substring(start, current)));
+    addToken(TokenType.NUMBER,
+        double.parse(source.substring(startCharIndex, currentCharIndex)));
   }
 
   String peekNext() {
-    if (current + 1 >= source.length) return '\\0';
-    return source[current + 1];
+    if (currentCharIndex + 1 >= source.length) return '\\0';
+    return source[currentCharIndex + 1];
   }
 
   bool isDigit(String character) {
@@ -141,41 +144,42 @@ class Scanner {
 
   void handleString() {
     while (peek() != '"' && !isAtEnd()) {
-      if (peek() == '\\n') line++;
+      if (peek() == '\\n') currentLine++;
       advance();
     }
 
     if (isAtEnd()) {
-      DLox.reportError(line, 'Unterminated string.');
+      DLox.reportError(currentLine, 'Unterminated string.');
       return;
     }
 
     advance();
 
-    final stringValue = source.substring(start + 1, current - 1);
+    final stringValue =
+        source.substring(startCharIndex + 1, currentCharIndex - 1);
     addToken(TokenType.STRING, stringValue);
   }
 
   /// A lookahead (i.e. does not consume any charcters, unlike [advance])
   String peek() {
     if (isAtEnd()) return '\\0';
-    return source[current];
+    return source[currentCharIndex];
   }
 
   bool _isNextMatch(String expected) {
     if (isAtEnd()) return false;
-    if (source[current] != expected) return false;
+    if (source[currentCharIndex] != expected) return false;
 
-    current++;
+    currentCharIndex++;
     return true;
   }
 
   void addToken(TokenType type, [Object? literal]) {
-    final lexeme = source.substring(start, current);
-    tokens.add(Token(type, lexeme, literal: literal, line: line));
+    final lexeme = source.substring(startCharIndex, currentCharIndex);
+    tokens.add(Token(type, lexeme, literal: literal, line: currentLine));
   }
 
   String advance() {
-    return source[current++];
+    return source[currentCharIndex++];
   }
 }

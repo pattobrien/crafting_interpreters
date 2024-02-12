@@ -161,6 +161,17 @@ class SetExpression extends Expression {
     return visitor.visitSetExpression(this);
   }
 }
+
+class ThisExpression extends Expression {
+  const ThisExpression(this.keyword);
+
+  final Token keyword;
+
+  @override
+  T accept<T>(ExpressionVisitor<T> visitor) {
+    return visitor.visitThisExpression(this);
+  }
+}
 sealed class Statement {
   const Statement();
 
@@ -312,6 +323,7 @@ abstract interface class ExpressionVisitor<T> {
   T visitCallExpression(CallExpression node);
   T visitGetExpression(GetExpression node);
   T visitSetExpression(SetExpression node);
+  T visitThisExpression(ThisExpression node);
 }
 abstract interface class StatementVisitor<T> {
   T visitExpressionStatement(ExpressionStatement node);

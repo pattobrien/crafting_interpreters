@@ -410,6 +410,10 @@ class Parser {
       return LiteralExpression(getPreviousToken().literal);
     }
 
+    if (match([TokenType.THIS])) {
+      return ThisExpression(getPreviousToken());
+    }
+
     if (match([TokenType.IDENTIFIER])) {
       return VariableExpression(getPreviousToken());
     }

@@ -60,6 +60,9 @@ Future<void> main(List<String> args) async {
       (type: 'Token', name: 'name'),
       (type: 'Expression', name: 'value'),
     ],
+    'ThisExpression': [
+      (type: 'Token', name: 'keyword'),
+    ],
   };
 
   defineAst(buffer, 'Expression', expressionTypes);

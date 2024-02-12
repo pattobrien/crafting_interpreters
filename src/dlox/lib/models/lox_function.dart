@@ -2,6 +2,7 @@ import '../ast/ast_nodes.dart';
 import '../environment.dart';
 import '../interpreter.dart';
 import 'lox_callable.dart';
+import 'lox_instance.dart';
 
 /// A user-defined Function.
 ///
@@ -35,6 +36,12 @@ class LoxFunction implements LoxCallable {
     }
 
     return null;
+  }
+
+  LoxFunction bind(LoxInstance instance) {
+    final environment = Environment.fromParent(closure);
+    environment.define('this', instance);
+    return LoxFunction(functionDeclaration, environment);
   }
 
   @override

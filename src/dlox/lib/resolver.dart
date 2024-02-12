@@ -20,6 +20,7 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
 
   final _scopes = <Map<String, bool>>[];
   FunctionType _currentFunction = FunctionType.none;
+  ClassType _currentClass = ClassType.none;
 
   /// Walks a list of statements and resolves each one.
   void resolveStatements(List<Statement> statements) {
@@ -161,12 +162,22 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
 
   @override
   void visitClassStatement(ClassStatement node) {
+    final enclosingClass = _currentClass;
+    _currentClass = ClassType.class_;
     declareIdentifier(node.name);
     defineIdentifier(node.name);
+
+    // -- add `this` to the class scope --
+    beginScope();
+    _scopes.last['this'] = true;
 
     for (final method in node.methods) {
       resolveFunction(method, FunctionType.method);
     }
+
+    endScope();
+
+    _currentClass = enclosingClass;
   }
 
   /// Looks up the variable with [name] in any scope, starting from the innermost scope.
@@ -186,6 +197,19 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
       resolveExpression(node.initializer!);
     }
     defineIdentifier(node.name);
+  }
+
+  /// Resolves the `this` keyword almost as if it were a variable.
+  @override
+  void visitThisExpression(ThisExpression node) {
+    if (_currentClass == ClassType.none) {
+      DLox.error(
+        node.keyword,
+        'Cannot use `this` outside of a class.',
+      );
+      return;
+    }
+    resolveLocal(node, node.keyword);
   }
 
   /// Adds the identifier (i.e. a class, function, or variable name) to the
@@ -231,3 +255,5 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
 }
 
 enum FunctionType { none, function, method }
+
+enum ClassType { none, class_ }

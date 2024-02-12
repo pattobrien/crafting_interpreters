@@ -344,6 +344,11 @@ class Interpreter
     LoxClass clazz = LoxClass(node.name.lexeme, methods);
     environment.assign(node.name, clazz);
   }
+
+  @override
+  Object? visitThisExpression(ThisExpression node) {
+    return lookUpVariable(node.keyword, node);
+  }
 }
 
 class DloxRuntimeError implements Exception {

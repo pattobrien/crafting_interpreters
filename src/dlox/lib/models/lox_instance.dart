@@ -14,7 +14,7 @@ class LoxInstance {
     }
 
     final method = clazz.findMethod(name.lexeme);
-    if (method != null) return method;
+    if (method != null) return method.bind(this);
 
     throw DloxRuntimeError(
       name,

@@ -318,7 +318,7 @@ class Interpreter
 
   @override
   void visitFunctionStatement(FunctionStatement node) {
-    LoxFunction function = LoxFunction(node, environment);
+    LoxFunction function = LoxFunction(node, environment, isInitializer: false);
     environment.define(node.name.lexeme, function);
   }
 
@@ -338,7 +338,11 @@ class Interpreter
 
     final methods = <String, LoxFunction>{};
     for (final method in node.methods) {
-      methods[method.name.lexeme] = LoxFunction(method, environment);
+      methods[method.name.lexeme] = LoxFunction(
+        method,
+        environment,
+        isInitializer: method.name.lexeme == 'init',
+      );
     }
 
     LoxClass clazz = LoxClass(node.name.lexeme, methods);

@@ -102,6 +102,14 @@ bill.sayName(); // ?
 
 In practice, you typically want to bind `sayName` to the _original instance_ that the referenced method was bound to.
 
+### Class Constructors
+
+Excerpts from the book (regarding constructors):
+
+"I find them one of the trickiest parts of a language to design, and if you peer closely at most other languages, you’ll see cracks around object construction where the seams of the design don’t quite fit together perfectly. Maybe there’s something intrinsically messy about the moment of birth."
+
+"Languages have a variety of notations for the chunk of code that sets up a new object for a class. C++, Java, and C# use a method whose name matches the class name. Ruby and Python call it init()."
+
 ## Notes for a "Dream" PL
 
 - pattern matching

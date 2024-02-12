@@ -139,6 +139,12 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
       DLox.error(node.keyword, 'Cannot return from top-level code.');
     }
     if (node.expression != null) {
+      if (_currentFunction == FunctionType.initializer) {
+        DLox.error(
+          node.keyword,
+          'Cannot return a value from an initializer.',
+        );
+      }
       resolveExpression(node.expression!);
     }
   }
@@ -172,6 +178,10 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
     _scopes.last['this'] = true;
 
     for (final method in node.methods) {
+      if (method.name.lexeme == 'init') {
+        resolveFunction(method, FunctionType.initializer);
+      }
+
       resolveFunction(method, FunctionType.method);
     }
 
@@ -254,6 +264,6 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
   }
 }
 
-enum FunctionType { none, function, method }
+enum FunctionType { none, function, method, initializer }
 
 enum ClassType { none, class_ }

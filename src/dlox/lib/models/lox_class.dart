@@ -12,12 +12,24 @@ class LoxClass implements LoxCallable {
   final String name;
   final Map<String, LoxFunction> methods;
 
+  /// Returns the list of arguments for the `init` method, or otherwise 0.
   @override
-  int get arity => 0;
+  int get arity {
+    final initializer = findMethod('init');
+    if (initializer == null) return 0;
+
+    return initializer.arity;
+  }
 
   @override
   Object? call(Interpreter interpreter, List<Object?> arguments) {
     final instance = LoxInstance(this);
+
+    // -- initializer (i.e. constructor) --
+    final initializer = findMethod('init');
+    if (initializer != null) {
+      initializer.bind(instance).call(interpreter, arguments);
+    }
     return instance;
   }
 

@@ -12,11 +12,13 @@ import 'lox_instance.dart';
 class LoxFunction implements LoxCallable {
   const LoxFunction(
     this.functionDeclaration,
-    this.closure,
-  );
+    this.closure, {
+    required this.isInitializer,
+  });
 
   final FunctionStatement functionDeclaration;
   final Environment closure;
+  final bool isInitializer;
 
   @override
   int get arity => functionDeclaration.params.length;
@@ -32,8 +34,15 @@ class LoxFunction implements LoxCallable {
     try {
       interpreter.executeBlock(functionDeclaration.body, environment);
     } on Return catch (e) {
+      // if we get a Return exception from within an initializer, then return
+      // `this` instead of the value (which would otherwise be null).
+      if (isInitializer) {
+        return closure.getAt(0, 'this');
+      }
       return e.value;
     }
+
+    if (isInitializer) return closure.getAt(0, 'this');
 
     return null;
   }
@@ -41,7 +50,11 @@ class LoxFunction implements LoxCallable {
   LoxFunction bind(LoxInstance instance) {
     final environment = Environment.fromParent(closure);
     environment.define('this', instance);
-    return LoxFunction(functionDeclaration, environment);
+    return LoxFunction(
+      functionDeclaration,
+      environment,
+      isInitializer: isInitializer,
+    );
   }
 
   @override

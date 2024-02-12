@@ -72,3 +72,17 @@ print cream; // Prints "DevonshireCream instance".
 
 // -- method calls --
 print cream.serveOn(); // Prints "Scones".
+
+// -- constructor declarations (via `init`) --
+class Muffin {
+  init(flavor) {
+    this.flavor = flavor;
+  }
+
+  eat() {
+    print "Mmm, " + this.flavor + " muffin!";
+  }
+}
+
+var blueberry = Muffin("blueberry");
+blueberry.eat(); // Prints "Mmm, blueberry muffin!".

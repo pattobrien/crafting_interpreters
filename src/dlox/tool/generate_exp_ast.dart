@@ -51,6 +51,15 @@ Future<void> main(List<String> args) async {
       (type: 'Token', name: 'closingParenthesis'),
       (type: 'List<Expression>', name: 'arguments'),
     ],
+    'GetExpression': [
+      (type: 'Expression', name: 'object'),
+      (type: 'Token', name: 'name'),
+    ],
+    'SetExpression': [
+      (type: 'Expression', name: 'object'),
+      (type: 'Token', name: 'name'),
+      (type: 'Expression', name: 'value'),
+    ],
   };
 
   defineAst(buffer, 'Expression', expressionTypes);

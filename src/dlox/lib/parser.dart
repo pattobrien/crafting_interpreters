@@ -261,20 +261,26 @@ class Parser {
   // note: this function is right-associative, so we recursively call
   // [parseAssignmentExpression] to parse the right hand side.
   Expression parseAssignmentExpression() {
-    Expression exp = parseOr();
+    Expression leftHandExpr = parseOr();
     if (match([TokenType.EQUAL])) {
       Token equals = getPreviousToken();
-      Expression value = parseAssignmentExpression();
+      Expression rightHandExpr = parseAssignmentExpression();
 
-      if (exp is VariableExpression) {
-        Token name = exp.name;
-        return AssignmentExpression(name, value);
+      if (leftHandExpr is VariableExpression) {
+        Token name = leftHandExpr.name;
+        return AssignmentExpression(name, rightHandExpr);
+      } else if (leftHandExpr is GetExpression) {
+        return SetExpression(
+          leftHandExpr.object,
+          leftHandExpr.name,
+          rightHandExpr,
+        );
       }
 
       reportError(equals, 'Invalid assignment target.');
     }
 
-    return exp;
+    return leftHandExpr;
   }
 
   Expression parseEquality() {
@@ -350,6 +356,12 @@ class Parser {
     while (true) {
       if (match([TokenType.LEFT_PARENTHESIS])) {
         exp = finishCall(exp);
+      } else if (match([TokenType.DOT])) {
+        Token name = consumeToken(
+          TokenType.IDENTIFIER,
+          'Expected property name after ".".',
+        );
+        exp = GetExpression(exp, name);
       } else {
         break;
       }

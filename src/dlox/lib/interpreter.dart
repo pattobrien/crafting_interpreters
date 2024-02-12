@@ -7,6 +7,7 @@ import 'functions/clock_callable.dart';
 import 'models/lox_callable.dart';
 import 'models/lox_class.dart';
 import 'models/lox_function.dart';
+import 'models/lox_instance.dart';
 import 'models/token.dart';
 import 'models/token_type.dart';
 
@@ -158,6 +159,36 @@ class Interpreter
   }
 
   @override
+  Object? visitGetExpression(GetExpression node) {
+    Object? object = evaluate(node.object);
+    if (object is! LoxInstance) {
+      throw DloxRuntimeError(
+        node.name,
+        'Only instances can have properties.',
+      );
+    }
+
+    // note: dynamic dispatch, since we look up the name of the property during
+    // runtime, rather than statically at compile time.
+    return object.get(node.name);
+  }
+
+  @override
+  Object? visitSetExpression(SetExpression node) {
+    Object? object = evaluate(node.object);
+    if (object is! LoxInstance) {
+      throw DloxRuntimeError(
+        node.name,
+        'Only instances can have fields.',
+      );
+    }
+
+    Object? value = evaluate(node.value);
+    object.set(node.name, value);
+    return value;
+  }
+
+  @override
   void visitVariableStatement(VariableStatement node) {
     Object? value;
 
@@ -299,10 +330,18 @@ class Interpreter
     throw Return(value);
   }
 
+  /// Note: all class members are interpreted as the class declaration
+  /// is encountered.
   @override
   void visitClassStatement(ClassStatement node) {
     environment.define(node.name.lexeme, null);
-    LoxClass clazz = LoxClass(node.name.lexeme);
+
+    final methods = <String, LoxFunction>{};
+    for (final method in node.methods) {
+      methods[method.name.lexeme] = LoxFunction(method, environment);
+    }
+
+    LoxClass clazz = LoxClass(node.name.lexeme, methods);
     environment.assign(node.name, clazz);
   }
 }

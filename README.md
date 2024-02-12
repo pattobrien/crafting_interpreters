@@ -77,6 +77,31 @@ There are three broad paths to object-oriented programming: classes, prototypes,
 
 Local variables (e.g. in nested block bodies) are resolved to the proper scope statically, via the [Resolver] visitor class. We through a compile-time error if a variable is not initialized properly, which for Lox only happens if there is already a variable with the same name in the current scope.
 
+### Method References
+
+see: https://craftinginterpreters.com/classes.html#methods-on-classes
+
+In the below code, should `bill.sayName` print `Bill` or `Jane`?
+
+```
+class Person {
+  sayName() {
+    print this.name;
+  }
+}
+
+var jane = Person();
+jane.name = "Jane";
+
+var bill = Person();
+bill.name = "Bill";
+
+bill.sayName = jane.sayName;
+bill.sayName(); // ?
+```
+
+In practice, you typically want to bind `sayName` to the _original instance_ that the referenced method was bound to.
+
 ## Notes for a "Dream" PL
 
 - pattern matching

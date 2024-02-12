@@ -163,6 +163,10 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
   void visitClassStatement(ClassStatement node) {
     declareIdentifier(node.name);
     defineIdentifier(node.name);
+
+    for (final method in node.methods) {
+      resolveFunction(method, FunctionType.method);
+    }
   }
 
   /// Looks up the variable with [name] in any scope, starting from the innermost scope.
@@ -213,6 +217,17 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
     resolveExpression(node.condition);
     resolveStatement(node.body);
   }
+
+  @override
+  void visitGetExpression(GetExpression node) {
+    resolveExpression(node.object);
+  }
+
+  @override
+  void visitSetExpression(SetExpression node) {
+    resolveExpression(node.value);
+    resolveExpression(node.object);
+  }
 }
 
-enum FunctionType { none, function }
+enum FunctionType { none, function, method }

@@ -126,6 +126,41 @@ class CallExpression extends Expression {
     return visitor.visitCallExpression(this);
   }
 }
+
+class GetExpression extends Expression {
+  const GetExpression(
+    this.object,
+    this.name,
+  );
+
+  final Expression object;
+
+  final Token name;
+
+  @override
+  T accept<T>(ExpressionVisitor<T> visitor) {
+    return visitor.visitGetExpression(this);
+  }
+}
+
+class SetExpression extends Expression {
+  const SetExpression(
+    this.object,
+    this.name,
+    this.value,
+  );
+
+  final Expression object;
+
+  final Token name;
+
+  final Expression value;
+
+  @override
+  T accept<T>(ExpressionVisitor<T> visitor) {
+    return visitor.visitSetExpression(this);
+  }
+}
 sealed class Statement {
   const Statement();
 
@@ -275,6 +310,8 @@ abstract interface class ExpressionVisitor<T> {
   T visitVariableExpression(VariableExpression node);
   T visitAssignmentExpression(AssignmentExpression node);
   T visitCallExpression(CallExpression node);
+  T visitGetExpression(GetExpression node);
+  T visitSetExpression(SetExpression node);
 }
 abstract interface class StatementVisitor<T> {
   T visitExpressionStatement(ExpressionStatement node);

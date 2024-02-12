@@ -4,7 +4,7 @@ import 'models/function_kind.dart';
 import 'models/token.dart';
 import 'models/token_type.dart';
 
-/// Takes a flat list of [tokens] and outputs AstNodes.
+/// Takes a flat list of [tokens] and outputs an Abstract Syntax Tree.
 class Parser {
   Parser(this.tokens);
 

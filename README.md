@@ -17,8 +17,28 @@ A lox interpreter written in Dart.
 - 10.5: Return Statements
 - 11: Resolving and Binding
 - 12: Classes
+- 14: JVM <- we are at the beginning of this section
 
 ## Notes
+
+### 2. Map of the Territory
+
+The `Front End` of the implementation (i.e. everything to do with the source language):
+
+- 1. Scanner
+- 2. Parser - Takes a flat list of tokens and generates nested ASTNodes (i.e. an Abstract Syntax Tree)
+- 3. Static Analysis - resolve and bind variable/class/function identifiers to their definitions
+
+  - this includes defining Scopes
+  - note: this is where we would also type-check in a statically typed language
+
+- `Intermediate Representations` (acts as an interface between the source and destination languages):
+- Optimization
+- Code generation
+- Virtual machine
+- Runtime
+
+Sections 3->13 create a `Tree-walk interpreter` using Dart.
 
 ### 8. Statements and State
 
@@ -116,4 +136,12 @@ Excerpts from the book (regarding constructors):
 - meta programming syntax
 - first-class functions
 - nested functions
-- a large amount of type inference capabilities
+- closures
+- classes
+- static typing
+- static method dispatch
+- a good amount of type inference capabilities
+- null safety
+- no `fun` keyword
+- for-in loop
+- extension methods (?)

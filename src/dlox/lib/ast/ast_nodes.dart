@@ -172,6 +172,22 @@ class ThisExpression extends Expression {
     return visitor.visitThisExpression(this);
   }
 }
+
+class SuperExpression extends Expression {
+  const SuperExpression(
+    this.keyword,
+    this.method,
+  );
+
+  final Token keyword;
+
+  final Token method;
+
+  @override
+  T accept<T>(ExpressionVisitor<T> visitor) {
+    return visitor.visitSuperExpression(this);
+  }
+}
 sealed class Statement {
   const Statement();
 
@@ -327,6 +343,7 @@ abstract interface class ExpressionVisitor<T> {
   T visitGetExpression(GetExpression node);
   T visitSetExpression(SetExpression node);
   T visitThisExpression(ThisExpression node);
+  T visitSuperExpression(SuperExpression node);
 }
 abstract interface class StatementVisitor<T> {
   T visitExpressionStatement(ExpressionStatement node);

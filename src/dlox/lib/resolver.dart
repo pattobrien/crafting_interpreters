@@ -185,7 +185,16 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
     }
 
     if (node.superclass != null) {
+      _currentClass = ClassType.subclass;
       resolveExpression(node.superclass!);
+    }
+
+    // if there is a superclass, we create a scope for all methods to live
+    // in, and add a `super` variable to it. we dispose of the scope after
+    // the methods are resolved.
+    if (node.superclass != null) {
+      beginScope();
+      _scopes.last['super'] = true;
     }
 
     // -- add `this` to the class scope --
@@ -201,6 +210,9 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
     }
 
     endScope();
+
+    // dispose of the superclass scope
+    if (node.superclass != null) endScope();
 
     _currentClass = enclosingClass;
   }
@@ -233,6 +245,22 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
         'Cannot use `this` outside of a class.',
       );
       return;
+    }
+    resolveLocal(node, node.keyword);
+  }
+
+  @override
+  void visitSuperExpression(SuperExpression node) {
+    if (_currentClass == ClassType.none) {
+      DLox.error(
+        node.keyword,
+        'Cannot use `super` outside of a class.',
+      );
+    } else if (_currentClass != ClassType.subclass) {
+      DLox.error(
+        node.keyword,
+        'Cannot use `super` in a class with no superclass.',
+      );
     }
     resolveLocal(node, node.keyword);
   }
@@ -281,4 +309,4 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
 
 enum FunctionType { none, function, method, initializer }
 
-enum ClassType { none, class_ }
+enum ClassType { none, class_, subclass }

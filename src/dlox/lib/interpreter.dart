@@ -349,6 +349,12 @@ class Interpreter
     // creates a new scope for the class
     environment.define(node.name.lexeme, null);
 
+    // creates a new environment for the class, for `super` to live in
+    if (node.superclass != null) {
+      _selectedEnvironment = Environment.fromParent(environment);
+      environment.define('super', superclass);
+    }
+
     final methods = <String, LoxFunction>{};
     for (final method in node.methods) {
       methods[method.name.lexeme] = LoxFunction(
@@ -363,12 +369,42 @@ class Interpreter
       methods,
       superclass: superclass as LoxClass?,
     );
+
+    // pop the scope for the superclass, which was created above
+    if (superclass != null) {
+      _selectedEnvironment = _selectedEnvironment!.enclosing;
+    }
+
     environment.assign(node.name, clazz);
   }
 
   @override
   Object? visitThisExpression(ThisExpression node) {
     return lookUpVariable(node.keyword, node);
+  }
+
+  @override
+  Object? visitSuperExpression(SuperExpression node) {
+    // we ensure a null-check and that the variable is a `LoxClass` statically,
+    // from within the Resolver
+    int distance = _locals[node]!;
+    final superclass =
+        _selectedEnvironment!.getAt(distance, 'super') as LoxClass;
+
+    // note: we use `distance - 1` to get the instance of the class from the
+    // inner environment.
+    final object =
+        _selectedEnvironment!.getAt(distance - 1, 'this') as LoxInstance;
+
+    final method = superclass.findMethod(node.method.lexeme);
+    if (method == null) {
+      throw DloxRuntimeError(
+        node.method,
+        'Undefined property `${node.method.lexeme}`.',
+      );
+    }
+
+    return method.bind(object);
   }
 }
 

@@ -417,6 +417,16 @@ class Parser {
       return LiteralExpression(getPreviousToken().literal);
     }
 
+    if (match([TokenType.SUPER])) {
+      Token keyword = getPreviousToken();
+      consumeToken(TokenType.DOT, 'Expect "." after "super".');
+      Token method = consumeToken(
+        TokenType.IDENTIFIER,
+        'Expect superclass method name',
+      );
+      return SuperExpression(keyword, method);
+    }
+
     if (match([TokenType.THIS])) {
       return ThisExpression(getPreviousToken());
     }

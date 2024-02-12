@@ -97,3 +97,17 @@ class Doughnut {
 class BostonCream < Doughnut {}
 
 BostonCream().cook();
+
+// -- `super` calls --
+print "";
+print "-----------------";
+print "super calls: ";
+
+class BostonCream < Doughnut {
+  cook() {
+    super.cook();
+    print "Pipe full of custard and coat with chocolate.";
+  }
+}
+
+BostonCream().cook(); // should print two lines (one from the super method, and one from the subclass method)

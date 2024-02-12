@@ -63,6 +63,10 @@ Future<void> main(List<String> args) async {
     'ThisExpression': [
       (type: 'Token', name: 'keyword'),
     ],
+    'SuperExpression': [
+      (type: 'Token', name: 'keyword'),
+      (type: 'Token', name: 'method'),
+    ],
   };
 
   defineAst(buffer, 'Expression', expressionTypes);

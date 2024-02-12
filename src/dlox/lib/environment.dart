@@ -14,10 +14,33 @@ class Environment {
 
   Environment.fromParent(Environment this.enclosing);
 
+  /// Retrieves the value of a variable.
+  ///
+  /// If the variable is not found in the current environment, the enclosing
+  /// environments are searched in order.
   Object? get(Token name) {
     if (_values.containsKey(name.lexeme)) return _values[name.lexeme];
     if (enclosing != null) return enclosing?.get(name);
     throw DloxRuntimeError(name, 'Undefined variable "${name.lexeme}".');
+  }
+
+  /// Retrieves the value of a variable at a specific [distance] from the current environment.
+  ///
+  /// Unlike [get], which recursively searches nested environments for a variable,
+  /// this function returns the value of a variable at a specific [distance]
+  /// from the current environment.
+  Object? getAt(int distance, String name) {
+    return ancestorAt(distance)._values[name]!;
+  }
+
+  /// Get the [Environment] at a specific [distance] from the current environment.
+  Environment ancestorAt(int distance) {
+    Environment environment = this;
+    for (int i = 0; i < distance; i++) {
+      environment = environment.enclosing!;
+    }
+
+    return environment;
   }
 
   /// Adds a variable / function declaration to this environment.
@@ -42,5 +65,10 @@ class Environment {
     }
 
     throw DloxRuntimeError(name, 'Undefined variable "${name.lexeme}".');
+  }
+
+  /// Assigns a variable at a specific [distance] from the current environment.
+  void assignAt(int distance, Token name, Object? value) {
+    ancestorAt(distance)._values[name.lexeme] = value;
   }
 }

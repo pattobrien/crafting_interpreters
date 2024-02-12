@@ -4,6 +4,7 @@ import 'interpreter.dart';
 import 'models/token.dart';
 import 'models/token_type.dart';
 import 'parser.dart';
+import 'resolver.dart';
 import 'scanner.dart';
 
 class DLox {
@@ -34,6 +35,12 @@ class DLox {
 
     final parser = Parser(tokens);
     final statements = parser.parse();
+
+    final resolver = Resolver(interpreter);
+    resolver.resolveStatements(statements);
+
+    // Stop if there was a resolution error.
+    if (hadError) return;
 
     interpreter.interpret(statements);
   }

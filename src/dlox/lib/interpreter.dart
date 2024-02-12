@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'ast/ast_nodes.dart';
 import 'dlox.dart';
 import 'environment.dart';
@@ -14,24 +16,31 @@ class Interpreter
   }
 
   final Environment globals = Environment.global();
+
   Environment get environment => _selectedEnvironment ?? globals;
 
   Environment? _selectedEnvironment;
 
+  /// Holds the depth of a local variable for each expression.
+  final Map<Expression, int> _locals = HashMap();
+
   void interpret(List<Statement> statements) {
     try {
-      // Object? value = evaluate(expression);
-      // print(value);
       for (final statement in statements) {
         execute(statement);
       }
-    } on DloxRuntimeError catch (error, stack) {
+    } on DloxRuntimeError catch (error) {
       DLox.runtimeError(error);
     }
   }
 
   void execute(Statement node) {
     node.accept(this);
+  }
+
+  /// Called by the [Resolver] to resolve the depth of a local variable.
+  void resolve(Expression expr, int depth) {
+    _locals[expr] = depth;
   }
 
   /// Evaluates the expression into a literal value.
@@ -159,8 +168,18 @@ class Interpreter
 
   @override
   Object? visitVariableExpression(VariableExpression node) {
-    final value = environment.get(node.name);
-    return value;
+    // final value = environment.get(node.name);
+    // return value;
+    return lookUpVariable(node.name, node);
+  }
+
+  Object? lookUpVariable(Token name, Expression expr) {
+    int? distance = _locals[expr];
+    if (distance != null) {
+      return _selectedEnvironment!.getAt(distance, name.lexeme);
+    } else {
+      return globals.get(name);
+    }
   }
 
   @override
@@ -168,8 +187,15 @@ class Interpreter
     AssignmentExpression node,
   ) {
     Object? value = evaluate(node.value);
-    environment.assign(node.name, value);
-    return value;
+    // environment.assign(node.name, value);
+    // return value;
+
+    int? distance = _locals[node];
+    if (distance != null) {
+      _selectedEnvironment!.assignAt(distance, node.name, value);
+    } else {
+      globals.assign(node.name, value);
+    }
   }
 
   @override

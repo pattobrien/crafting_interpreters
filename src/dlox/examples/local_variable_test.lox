@@ -65,3 +65,7 @@ class DevonshireCream {
 }
 
 print DevonshireCream; // Prints "DevonshireCream".
+
+// -- class instance creation --
+var cream = DevonshireCream();
+print cream; // Prints "DevonshireCream instance".

@@ -47,8 +47,8 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
 
     beginScope();
     for (final param in node.params) {
-      declareVariable(param);
-      defineVariable(param);
+      declareIdentifier(param);
+      defineIdentifier(param);
     }
     resolveStatements(node.body);
     endScope();
@@ -96,8 +96,8 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
 
   @override
   void visitFunctionStatement(FunctionStatement node) {
-    declareVariable(node.name);
-    defineVariable(node.name);
+    declareIdentifier(node.name);
+    defineIdentifier(node.name);
 
     resolveFunction(node, FunctionType.function);
   }
@@ -159,6 +159,12 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
     resolveLocal(node, node.name);
   }
 
+  @override
+  void visitClassStatement(ClassStatement node) {
+    declareIdentifier(node.name);
+    defineIdentifier(node.name);
+  }
+
   /// Looks up the variable with [name] in any scope, starting from the innermost scope.
   void resolveLocal(Expression expression, Token name) {
     for (var i = _scopes.length - 1; i >= 0; i--) {
@@ -171,30 +177,31 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
 
   @override
   void visitVariableStatement(VariableStatement node) {
-    declareVariable(node.name);
+    declareIdentifier(node.name);
     if (node.initializer != null) {
       resolveExpression(node.initializer!);
     }
-    defineVariable(node.name);
+    defineIdentifier(node.name);
   }
 
-  /// Adds the variable to the innermost scope.
+  /// Adds the identifier (i.e. a class, function, or variable name) to the
+  /// innermost scope.
   ///
   /// The variable is marked as `not ready yet` by setting its value to `false`.
-  void declareVariable(Token name) {
+  void declareIdentifier(Token name) {
     if (_scopes.isEmpty) return;
     final scope = _scopes.last;
 
     if (scope.containsKey(name.lexeme)) {
-      DLox.error(name, 'Already a variable with this name in this scope.');
+      DLox.error(name, 'Already an identifier with this name in this scope.');
     }
 
     scope[name.lexeme] = false;
     _scopes[_scopes.length - 1] = scope;
   }
 
-  /// Marks the variable as `ready` (i.e. it has been initialized).
-  void defineVariable(Token name) {
+  /// Marks the identifier as `ready` (i.e. it has been initialized).
+  void defineIdentifier(Token name) {
     if (_scopes.isEmpty) return;
     final scope = _scopes.last;
     scope[name.lexeme] = true;

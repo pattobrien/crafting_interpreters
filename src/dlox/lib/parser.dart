@@ -24,6 +24,9 @@ class Parser {
 
   Statement? parseDeclaration() {
     try {
+      if (match([TokenType.CLASS])) {
+        return parseClassDeclaration();
+      }
       if (match([TokenType.FUN])) {
         return parseFunctionDeclaration(FunctionKind.function);
       }
@@ -33,6 +36,27 @@ class Parser {
       synchronize();
       return null;
     }
+  }
+
+  ClassStatement parseClassDeclaration() {
+    Token name = consumeToken(TokenType.IDENTIFIER, 'Expect class name.');
+
+    consumeToken(
+      TokenType.LEFT_BRACE,
+      'Expect "{" after class name.',
+    );
+
+    List<FunctionStatement> methods = [];
+    while (!checkToken(TokenType.RIGHT_BRACE) && !isAtEnd()) {
+      methods.add(parseFunctionDeclaration(FunctionKind.method));
+    }
+
+    consumeToken(
+      TokenType.RIGHT_BRACE,
+      'Expect "}" after class body.',
+    );
+
+    return ClassStatement(name, methods);
   }
 
   FunctionStatement parseFunctionDeclaration(FunctionKind kind) {
@@ -47,7 +71,7 @@ class Parser {
     );
 
     List<Token> parameters = [];
-    if (!check(TokenType.RIGHT_PARENTHESIS)) {
+    if (!checkToken(TokenType.RIGHT_PARENTHESIS)) {
       do {
         if (parameters.length >= 255) {
           reportError(peek(), 'Cant\'t have more than 255 parameters.');
@@ -95,7 +119,7 @@ class Parser {
   ReturnStatement parseReturnStatement() {
     Token keyword = getPreviousToken();
     Expression? value;
-    if (!check(TokenType.SEMICOLON)) {
+    if (!checkToken(TokenType.SEMICOLON)) {
       value = parseExpression();
     }
 
@@ -119,14 +143,14 @@ class Parser {
 
     // -- condition clause --
     Expression? condition;
-    if (!check(TokenType.SEMICOLON)) {
+    if (!checkToken(TokenType.SEMICOLON)) {
       condition = parseExpression();
     }
     consumeToken(TokenType.SEMICOLON, 'Expected ";" after loop condition.');
 
     // -- increment clause --
     Expression? increment;
-    if (!check(TokenType.RIGHT_PARENTHESIS)) {
+    if (!checkToken(TokenType.RIGHT_PARENTHESIS)) {
       increment = parseExpression();
     }
     consumeToken(
@@ -208,7 +232,7 @@ class Parser {
 
   List<Statement> parseBlock() {
     List<Statement> statements = [];
-    while (!check(TokenType.RIGHT_BRACE) && !isAtEnd()) {
+    while (!checkToken(TokenType.RIGHT_BRACE) && !isAtEnd()) {
       final declaration = parseDeclaration();
       if (declaration != null) {
         statements.add(declaration);
@@ -335,7 +359,7 @@ class Parser {
 
   Expression finishCall(Expression callee) {
     List<Expression> arguments = [];
-    if (!check(TokenType.RIGHT_PARENTHESIS)) {
+    if (!checkToken(TokenType.RIGHT_PARENTHESIS)) {
       do {
         if (arguments.length >= 255) {
           reportError(peek(), 'Can\'t have more than 255 arguments.');
@@ -355,7 +379,7 @@ class Parser {
   /// Checks if the next token is of [type], and otherwise throws an error
   /// with [message].
   Token consumeToken(TokenType type, String message) {
-    if (check(type)) return advance();
+    if (checkToken(type)) return advance();
     throw reportError(peek(), message);
   }
 
@@ -413,14 +437,14 @@ class Parser {
 
   /// Returns true and advances if the next token matches any of [types].
   bool match(List<TokenType> types) {
-    if (types.any((element) => check(element))) {
+    if (types.any((element) => checkToken(element))) {
       advance();
       return true;
     }
     return false;
   }
 
-  bool check(TokenType type) {
+  bool checkToken(TokenType type) {
     if (isAtEnd()) return false;
     return peek().type == type;
   }
@@ -430,6 +454,7 @@ class Parser {
     return getPreviousToken();
   }
 
+  /// Peeks at the next token, and returns true if it's the end of the file.
   bool isAtEnd() => peek().type == TokenType.EOF;
 
   Token peek() => tokens[current];

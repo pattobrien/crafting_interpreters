@@ -69,6 +69,10 @@ Future<void> main(List<String> args) async {
     'BlockStatement': [
       (type: 'List<Statement>', name: 'statements'),
     ],
+    'ClassStatement': [
+      (type: 'Token', name: 'name'),
+      (type: 'List<FunctionStatement>', name: 'methods'),
+    ],
     'FunctionStatement': [
       (type: 'Token', name: 'name'),
       (type: 'List<Token>', name: 'params'),

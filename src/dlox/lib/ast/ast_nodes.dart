@@ -181,6 +181,22 @@ class BlockStatement extends Statement {
   }
 }
 
+class ClassStatement extends Statement {
+  const ClassStatement(
+    this.name,
+    this.methods,
+  );
+
+  final Token name;
+
+  final List<FunctionStatement> methods;
+
+  @override
+  T accept<T>(StatementVisitor<T> visitor) {
+    return visitor.visitClassStatement(this);
+  }
+}
+
 class FunctionStatement extends Statement {
   const FunctionStatement(
     this.name,
@@ -265,6 +281,7 @@ abstract interface class StatementVisitor<T> {
   T visitPrintStatement(PrintStatement node);
   T visitVariableStatement(VariableStatement node);
   T visitBlockStatement(BlockStatement node);
+  T visitClassStatement(ClassStatement node);
   T visitFunctionStatement(FunctionStatement node);
   T visitIfStatement(IfStatement node);
   T visitWhileStatement(WhileStatement node);

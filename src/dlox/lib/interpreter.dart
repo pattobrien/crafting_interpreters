@@ -5,6 +5,7 @@ import 'dlox.dart';
 import 'environment.dart';
 import 'functions/clock_callable.dart';
 import 'models/lox_callable.dart';
+import 'models/lox_class.dart';
 import 'models/lox_function.dart';
 import 'models/token.dart';
 import 'models/token_type.dart';
@@ -294,6 +295,13 @@ class Interpreter
     if (node.expression != null) value = evaluate(node.expression!);
 
     throw Return(value);
+  }
+
+  @override
+  void visitClassStatement(ClassStatement node) {
+    environment.define(node.name.lexeme, null);
+    LoxClass clazz = LoxClass(node.name.lexeme);
+    environment.assign(node.name, clazz);
   }
 }
 

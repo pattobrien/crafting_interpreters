@@ -21,7 +21,7 @@ class Environment {
   Object? get(Token name) {
     if (_values.containsKey(name.lexeme)) return _values[name.lexeme];
     if (enclosing != null) return enclosing?.get(name);
-    throw DloxRuntimeError(name, 'Undefined variable "${name.lexeme}".');
+    throw DloxRuntimeError(name, 'Undefined identifier "${name.lexeme}".');
   }
 
   /// Retrieves the value of a variable at a specific [distance] from the current environment.
@@ -46,7 +46,7 @@ class Environment {
   /// Adds a variable / function declaration to this environment.
   void define(String name, Object? value) {
     if (value == null) {
-      _values.remove(name);
+      _values[name] = null;
       return;
     }
     _values.putIfAbsent(name, () => value);
@@ -64,7 +64,7 @@ class Environment {
       return enclosing!.assign(name, value);
     }
 
-    throw DloxRuntimeError(name, 'Undefined variable "${name.lexeme}".');
+    throw DloxRuntimeError(name, 'Undefined identifier "${name.lexeme}".');
   }
 
   /// Assigns a variable at a specific [distance] from the current environment.

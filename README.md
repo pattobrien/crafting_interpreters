@@ -69,6 +69,10 @@ We can have our cake and eat it too by desugaring. That funny word describes a p
 
 NOTE: The implementation of the for statement sugar means that we don't implement a separate AstNode for a `ForStatement`, and therefore don't implement a separate visit method in the Interpreter. All we do is implement a method in the `Parser` that handles the `desugaring` (see: `Parser.parseForStatement`).
 
+### OOP and Classes
+
+There are three broad paths to object-oriented programming: classes, prototypes, and multimethods.
+
 ### Variable Resolution
 
 Local variables (e.g. in nested block bodies) are resolved to the proper scope statically, via the [Resolver] visitor class. We through a compile-time error if a variable is not initialized properly, which for Lox only happens if there is already a variable with the same name in the current scope.
@@ -79,3 +83,4 @@ Local variables (e.g. in nested block bodies) are resolved to the proper scope s
 - meta programming syntax
 - first-class functions
 - nested functions
+- a large amount of type inference capabilities

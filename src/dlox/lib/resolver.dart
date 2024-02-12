@@ -170,8 +170,23 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
   void visitClassStatement(ClassStatement node) {
     final enclosingClass = _currentClass;
     _currentClass = ClassType.class_;
+
     declareIdentifier(node.name);
     defineIdentifier(node.name);
+
+    // checks for a superclass AND if the class name is the same as the superclass
+    // name (which is not allowed!)
+    if (node.superclass != null &&
+        node.name.lexeme == node.superclass!.name.lexeme) {
+      DLox.error(
+        node.superclass!.name,
+        'A class cannot inherit from itself.',
+      );
+    }
+
+    if (node.superclass != null) {
+      resolveExpression(node.superclass!);
+    }
 
     // -- add `this` to the class scope --
     beginScope();

@@ -330,10 +330,23 @@ class Interpreter
     throw Return(value);
   }
 
-  /// Note: all class members are interpreted as the class declaration
-  /// is encountered.
+  /// Converts a [ClassStatement] node into a [LoxClass] instance.
   @override
   void visitClassStatement(ClassStatement node) {
+    // evaluates the superclass (if one exists), and checks (at runtime) if
+    // it's a class.
+    Object? superclass;
+    if (node.superclass != null) {
+      superclass = evaluate(node.superclass!);
+      if (superclass is! LoxClass) {
+        throw DloxRuntimeError(
+          node.superclass!.name,
+          'Superclass must be a class.',
+        );
+      }
+    }
+
+    // creates a new scope for the class
     environment.define(node.name.lexeme, null);
 
     final methods = <String, LoxFunction>{};
@@ -345,7 +358,11 @@ class Interpreter
       );
     }
 
-    LoxClass clazz = LoxClass(node.name.lexeme, methods);
+    final clazz = LoxClass(
+      node.name.lexeme,
+      methods,
+      superclass: superclass as LoxClass?,
+    );
     environment.assign(node.name, clazz);
   }
 

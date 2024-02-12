@@ -231,11 +231,14 @@ class ClassStatement extends Statement {
   const ClassStatement(
     this.name,
     this.methods,
+    this.superclass,
   );
 
   final Token name;
 
   final List<FunctionStatement> methods;
+
+  final VariableExpression? superclass;
 
   @override
   T accept<T>(StatementVisitor<T> visitor) {

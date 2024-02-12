@@ -41,6 +41,13 @@ class Parser {
   ClassStatement parseClassDeclaration() {
     Token name = consumeToken(TokenType.IDENTIFIER, 'Expect class name.');
 
+    // -- superclass --
+    VariableExpression? superclass;
+    if (match([TokenType.LESS])) {
+      consumeToken(TokenType.IDENTIFIER, 'Expect superclass name.');
+      superclass = VariableExpression(getPreviousToken());
+    }
+
     consumeToken(
       TokenType.LEFT_BRACE,
       'Expect "{" after class name.',
@@ -56,7 +63,7 @@ class Parser {
       'Expect "}" after class body.',
     );
 
-    return ClassStatement(name, methods);
+    return ClassStatement(name, methods, superclass);
   }
 
   FunctionStatement parseFunctionDeclaration(FunctionKind kind) {

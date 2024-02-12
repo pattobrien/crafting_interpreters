@@ -6,11 +6,13 @@ import 'lox_instance.dart';
 class LoxClass implements LoxCallable {
   const LoxClass(
     this.name,
-    this.methods,
-  );
+    this.methods, {
+    required this.superclass,
+  });
 
   final String name;
   final Map<String, LoxFunction> methods;
+  final LoxClass? superclass;
 
   /// Returns the list of arguments for the `init` method, or otherwise 0.
   @override
@@ -37,6 +39,11 @@ class LoxClass implements LoxCallable {
     if (methods.containsKey(name)) {
       return methods[name];
     }
+
+    if (superclass != null) {
+      return superclass!.findMethod(name);
+    }
+
     return null;
   }
 

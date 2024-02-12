@@ -86,3 +86,14 @@ class Muffin {
 
 var blueberry = Muffin("blueberry");
 blueberry.eat(); // Prints "Mmm, blueberry muffin!".
+
+// -- inheritance --
+class Doughnut {
+  cook() {
+    print "Fry until golden brown.";
+  }
+}
+
+class BostonCream < Doughnut {}
+
+BostonCream().cook();

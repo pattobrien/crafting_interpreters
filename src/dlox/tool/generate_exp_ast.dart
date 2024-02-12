@@ -84,6 +84,7 @@ Future<void> main(List<String> args) async {
     'ClassStatement': [
       (type: 'Token', name: 'name'),
       (type: 'List<FunctionStatement>', name: 'methods'),
+      (type: 'VariableExpression?', name: 'superclass'),
     ],
     'FunctionStatement': [
       (type: 'Token', name: 'name'),
